@@ -1,0 +1,36 @@
+{
+  "name": "cider-market-analysis-dashboard",
+  "version": "1.0.0",
+  "description": "シードル市場分析ダッシュボード",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3247",
+    "build": "next build",
+    "start": "next start -p 3247",
+    "lint": "next lint"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@mui/material": "^6.5.0",
+    "@mui/material-nextjs": "^7.3.7",
+    "@tanstack/react-query": "^5.90.16",
+    "@types/node": "^25.0.3",
+    "@types/pg": "^8.16.0",
+    "@types/react": "^19.2.7",
+    "next": "^15.5.9",
+    "pg": "^8.16.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "recharts": "^3.6.0",
+    "typescript": "^5.9.3",
+    "zustand": "^5.0.9"
+  },
+  "devDependencies": {
+    "@react-pdf/renderer": "^4.3.2",
+    "html2canvas": "^1.4.1"
+  }
+}
