@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>シードル市場分析ダッシュボード - デザインテーマ選択</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Noto Sans JP', 'Meiryo', sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%);
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 50px;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #1a1a2e;
+      margin-bottom: 16px;
+    }
+
+    .subtitle {
+      font-size: 1.1rem;
+      color: #666;
+      max-width: 800px;
+      margin: 0 auto;
+      line-height: 1.8;
+    }
+
+    .project-info {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 40px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    }
+
+    .project-info h2 {
+      font-size: 1.2rem;
+      color: #333;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+    }
+
+    .info-item {
+      background: #f8f9fa;
+      padding: 12px 16px;
+      border-radius: 8px;
+    }
+
+    .info-item label {
+      font-size: 0.85rem;
+      color: #666;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .info-item span {
+      font-weight: 500;
+      color: #333;
+    }
+
+    .themes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 24px;
+      margin-bottom: 40px;
+    }
+
+    .theme-card {
+      background: white;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .theme-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+    }
+
+    .theme-card.selected {
+      outline: 4px solid #1976d2;
+      outline-offset: 2px;
+    }
+
+    .theme-card.selected::after {
+      content: "選択中";
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: #1976d2;
+      color: white;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      z-index: 10;
+    }
+
+    .theme-preview {
+      height: 180px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .preview-dashboard {
+      width: 100%;
+      height: 100%;
+      border-radius: 8px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto 1fr;
+      gap: 8px;
+      padding: 12px;
+      background: var(--preview-bg);
+    }
+
+    .preview-header {
+      grid-column: 1 / -1;
+      height: 24px;
+      border-radius: 4px;
+      background: var(--preview-header);
+    }
+
+    .preview-chart {
+      border-radius: 6px;
+      background: var(--preview-card);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 8px;
+      gap: 4px;
+    }
+
+    .preview-bar {
+      width: 12px;
+      border-radius: 2px 2px 0 0;
+    }
+
+    .theme-content {
+      padding: 24px;
+    }
+
+    .theme-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      margin-bottom: 12px;
+    }
+
+    .theme-name {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #1a1a2e;
+      margin-bottom: 8px;
+    }
+
+    .theme-description {
+      font-size: 0.95rem;
+      color: #666;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .color-palette {
+      margin-bottom: 20px;
+    }
+
+    .palette-title {
+      font-size: 0.85rem;
+      color: #999;
+      margin-bottom: 12px;
+      font-weight: 500;
+    }
+
+    .color-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+
+    .color-swatch {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .swatch {
+      width: 48px;
+      height: 48px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      position: relative;
+    }
+
+    .swatch-label {
+      font-size: 0.7rem;
+      color: #888;
+      text-align: center;
+    }
+
+    .mui-colors {
+      background: #f8f9fa;
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    .mui-colors h4 {
+      font-size: 0.85rem;
+      color: #666;
+      margin-bottom: 12px;
+      font-weight: 500;
+    }
+
+    .mui-color-list {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      font-size: 0.8rem;
+    }
+
+    .mui-color-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .mui-color-box {
+      width: 20px;
+      height: 20px;
+      border-radius: 4px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+
+    .mui-color-code {
+      font-family: 'Monaco', 'Menlo', monospace;
+      color: #555;
+    }
+
+    .features-list {
+      margin-top: 16px;
+    }
+
+    .features-list li {
+      font-size: 0.9rem;
+      color: #555;
+      margin-bottom: 6px;
+      padding-left: 20px;
+      position: relative;
+    }
+
+    .features-list li::before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      color: #4caf50;
+      font-weight: bold;
+    }
+
+    .action-section {
+      text-align: center;
+      padding: 40px;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+
+    .action-section h3 {
+      font-size: 1.3rem;
+      color: #333;
+      margin-bottom: 16px;
+    }
+
+    .selected-theme-display {
+      font-size: 1.1rem;
+      color: #1976d2;
+      font-weight: 600;
+      margin-bottom: 24px;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 14px 32px;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: none;
+    }
+
+    .btn-primary {
+      background: #1976d2;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #1565c0;
+    }
+
+    .btn-secondary {
+      background: #f5f5f5;
+      color: #333;
+      border: 1px solid #ddd;
+    }
+
+    .btn-secondary:hover {
+      background: #e0e0e0;
+    }
+
+    /* Theme 1: Classic Wine */
+    .theme-classic-wine .theme-preview {
+      background: linear-gradient(135deg, #722f37 0%, #4a1c1c 100%);
+    }
+    .theme-classic-wine {
+      --preview-bg: #faf5f5;
+      --preview-header: #722f37;
+      --preview-card: white;
+    }
+    .theme-classic-wine .preview-bar:nth-child(1) { background: #722f37; height: 60%; }
+    .theme-classic-wine .preview-bar:nth-child(2) { background: #b8860b; height: 80%; }
+    .theme-classic-wine .preview-bar:nth-child(3) { background: #8b4513; height: 45%; }
+    .theme-classic-wine .preview-bar:nth-child(4) { background: #a0522d; height: 70%; }
+    .theme-classic-wine .theme-badge { background: #fce4e6; color: #722f37; }
+
+    /* Theme 2: Modern Business */
+    .theme-modern-business .theme-preview {
+      background: linear-gradient(135deg, #1976d2 0%, #0d47a1 100%);
+    }
+    .theme-modern-business {
+      --preview-bg: #f5f7fa;
+      --preview-header: #1976d2;
+      --preview-card: white;
+    }
+    .theme-modern-business .preview-bar:nth-child(1) { background: #1976d2; height: 70%; }
+    .theme-modern-business .preview-bar:nth-child(2) { background: #42a5f5; height: 55%; }
+    .theme-modern-business .preview-bar:nth-child(3) { background: #78909c; height: 85%; }
+    .theme-modern-business .preview-bar:nth-child(4) { background: #455a64; height: 40%; }
+    .theme-modern-business .theme-badge { background: #e3f2fd; color: #1976d2; }
+
+    /* Theme 3: Natural Cider */
+    .theme-natural-cider .theme-preview {
+      background: linear-gradient(135deg, #558b2f 0%, #33691e 100%);
+    }
+    .theme-natural-cider {
+      --preview-bg: #f9fbe7;
+      --preview-header: #558b2f;
+      --preview-card: white;
+    }
+    .theme-natural-cider .preview-bar:nth-child(1) { background: #558b2f; height: 65%; }
+    .theme-natural-cider .preview-bar:nth-child(2) { background: #8bc34a; height: 80%; }
+    .theme-natural-cider .preview-bar:nth-child(3) { background: #cddc39; height: 50%; }
+    .theme-natural-cider .preview-bar:nth-child(4) { background: #ffc107; height: 75%; }
+    .theme-natural-cider .theme-badge { background: #e8f5e9; color: #2e7d32; }
+
+    /* Theme 4: Premium Dark */
+    .theme-premium-dark .theme-preview {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    }
+    .theme-premium-dark {
+      --preview-bg: #1a1a2e;
+      --preview-header: #3f51b5;
+      --preview-card: #252542;
+    }
+    .theme-premium-dark .preview-bar:nth-child(1) { background: #7c4dff; height: 75%; }
+    .theme-premium-dark .preview-bar:nth-child(2) { background: #448aff; height: 60%; }
+    .theme-premium-dark .preview-bar:nth-child(3) { background: #69f0ae; height: 85%; }
+    .theme-premium-dark .preview-bar:nth-child(4) { background: #ff5252; height: 45%; }
+    .theme-premium-dark .theme-badge { background: #3f51b5; color: white; }
+
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 1.8rem;
+      }
+      .themes-grid {
+        grid-template-columns: 1fr;
+      }
+      .btn-group {
+        flex-direction: column;
+      }
+      .btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>シードル市場分析ダッシュボード</h1>
+      <p class="subtitle">
+        プロジェクトに最適なデザインテーマを選択してください。<br>
+        各テーマはMUI v6のカラーパレットに基づいて設計されています。
+      </p>
+    </header>
+
+    <div class="project-info">
+      <h2>📊 プロジェクト概要</h2>
+      <div class="info-grid">
+        <div class="info-item">
+          <label>プロジェクト名</label>
+          <span>シードル市場分析ダッシュボード</span>
+        </div>
+        <div class="info-item">
+          <label>目的</label>
+          <span>アルコール市場の多角的比較分析</span>
+        </div>
+        <div class="info-item">
+          <label>ターゲット</label>
+          <span>ビジネスユーザー（提案資料作成）</span>
+        </div>
+        <div class="info-item">
+          <label>技術スタック</label>
+          <span>Next.js 15 + MUI v6 + Recharts</span>
+        </div>
+        <div class="info-item">
+          <label>主要機能</label>
+          <span>データ可視化・PDFレポート出力</span>
+        </div>
+        <div class="info-item">
+          <label>ページ数</label>
+          <span>2ページ（MVP）</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="themes-grid">
+      <!-- Theme 1: Classic Wine -->
+      <div class="theme-card theme-classic-wine" onclick="selectTheme(this, 'クラシックワイン')">
+        <div class="theme-preview">
+          <div class="preview-dashboard">
+            <div class="preview-header"></div>
+            <div class="preview-chart">
+              <div class="preview-bar"></div>
+              <div class="preview-bar"></div>
+              <div class="preview-bar"></div>
+              <div class="preview-bar"></div>
+            </div>
+            <div class="preview-chart">
+              <div class="preview-bar"></div>
+              <div class="preview-bar"></div>
+              <div class="preview-bar"></div>
+              <div class="preview-bar"></div>
+            </div>
+          </div>
+        </div>
+        <div class="theme-content">
+          <span class="theme-badge">高級感・伝統的</span>
+          <h3 class="theme-name">1. クラシックワイン</h3>
+          <p class="theme-description">
+            深みのあるワインレッドとゴールドを基調とした、高級感と伝統を感じさせるテーマ。
+            ワイン・日本酒の比較分析に最適な、落ち着いた雰囲気を演出します。
+          </p>
+
+          <div class="color-palette">
+            <div class="palette-title">カラーサンプル</div>
+            <div class="color-row">
+              <div class="color-swatch">
+                <div class="swatch" style="background: #722f37;"></div>
+                <span class="swatch-label">Primary</span>
+              </div>
+              <div class="color-swatch">
+                <div class="swatch" style="background: #b8860b;"></div>
+                <span class="swatch-label">Secondary</span>
+              </div>
+              <div class="color-swatch">
+                <div class="swatch" style="background: #faf5f5;"></div>
+                <span class="swatch-label">Background</span>
+              </div>
+              <div class="color-swatch">
+                <div class="swatch" style="background: #8b4513;"></div>
+                <span class="swatch-label">Accent</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="mui-colors">
+            <h4>MUI カラーパレット</h4>
+            <div class="mui-color-list">
+              <div class="mui-color-item">
+                <div class="mui-color-box" style="background: #722f37;"></div>
+                <span class="mui-color-code">primary: #722f37</span>
+              </div>
+              <div class="mui-color-item">
+                <div class="mui-color-box" style="background: #b8860b;"></div>
+                <span class="mui-color-code">secondary: #b8860b</span>
+              </div>
+              <div class="mui-color-item">
+                <div class="mui-color-box" style="background: #d32f2f;"></div>
+                <span class="mui-color-code">error: #d32f2f</span>
+              </div>
+              <div class="mui-color-item">
+                <div class="mui-color-box" style="background: #f57c00;"></div>
+                <span class="mui-color-code">warning: #f57c00</span>
+              </div>
+              <div class="mui-color-item">
+                <div class="mui-color-box" style="background: #388e3c;"></div>
+                <span class="mui-color-code">success: #388e3c</span>
+              </div>
+              <div class="mui-color-item">
+                <div class="mui-color-box" style="background: #faf5f5;"></div>
+                <span class="mui-color-code">background: #faf5f5</span>
+              </div>
+            </div>
+          </div>
+
+          <ul class="features-list">
+            <li>ワイン産業との親和性が高い配色</li>
+            <li>重厚感のある提案資料に最適</li>
+            <li>データの信頼性を視覚的に演出</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Theme 2: Modern Business -->
+      <div class="theme-card theme-modern-business" onclick="selectTheme(this, 'モダンビジネス')">
+        <div class="theme-preview">
+          <div class="preview-dashboard">
+            <div class="preview-header"></div>
+            <div class="preview-chart">
+              <div class="preview-bar"></div>
+              <div class="preview-bar"></div>
+              <div class="preview-bar"></div>
+              <div class="preview-bar"></div>
+            </div>
+            <div class="preview-chart">
+              <div class="preview-bar"></div>
+              <div class="preview-bar"></div>
+              <div class="preview-bar"></div>
+              <div class="preview-bar"></div>
+            </div>
+          </div>
+        </div>
+        <div class="theme-content">
+          <span class="theme-badge">信頼感・プロフェッショナル</span>
+          <h3 class="theme-name">2. モダンビジネス</h3>
+          <p class="theme-description">
+            ブルーとグレーを基調とした、ビジネスシーンで信頼感を与える王道テーマ。
+            データ分析ダッシュボードの定番カラーで、幅広いシーンで活用できます。
+          </p>
+
+          <div class="color-palette">
+            <div class="palette-title">カラーサンプル</div>
+            <div class="color-row">
+              <div class="color-swatch">
+                <div class="swatch" style="background: #1976d2;"></div>
+                <span class="swatch-label">Primary</span>
+              </div>
+              <div class="color-swatch">
+                <div class="swatch" style="background: #dc004e;"></div>
+                <span class="swatch-label">Secondary</span>
+              </div>
+              <div class="color-swatch">
+                <div class="swatch" style="background: #f5f7fa;"></div>
+                <span class="swatch-label">Background</span>
+              </div>
+              <div class="color-swatch">
+                <div class="swatch" style="background: #455a64;"></div>
+                <span class="swatch-label">Accent</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="mui-colors">
+            <h4>MUI カラーパレット</h4>
+            <div class="mui-color-list">
+              <div class="mui-color-item">
+                <div class="mui-color-box" style="background: #1976d2;"></div>
+                <span class="mui-color-code">primary: #1976d2</span>
+              </div>
+              <div class="mui-color-item">
+                <div class="mui-color-box" style="background: #dc004e;"></div>
+                <span class="mui-color-code">secondary: #dc004e</span>
+              </div>
+              <div class="mui-color-item">
+                <div class="mui-color-box" style="background: #d32f2f;"></div>
+                <span class="mui-color-code">error: #d32f2f</span>
+              </div>
+              <div class="mui-color-item">
+                <div class="mui-color-box" style="background: #ed6c02;"></div>
+                <span class="mui-color-code">warning: #ed6c02</span>
+              </div>
+              <div class="mui-color-item">
+                <div class="mui-color-box" style="background: #2e7d32;"></div>
+                <span class="mui-color-code">success: #2e7d32</span>
+              </div>
+              <div class="mui-color-item">
+                <div class="mui-color-box" style="background: #f5f7fa;"></div>
+                <span class="mui-color-code">background: #f5f7fa</span>
+              </div>
+            </div>
+          </div>
+
+          <ul class="features-list">
+            <li>MUIデフォルトに近い安定した配色</li>
+            <li>グラフ・チャートの視認性が高い</li>
+            <li>CLAUDE.md推奨のワイン・日本酒配色対応</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Theme 3: Natural Cider -->
+      <div class="theme-card theme-natural-cider" onclick="selectTheme(this, 'ナチュラルシードル')">
+        <div class="theme-preview">
+          <div class="preview-dashboard">
+            <div class="preview-header"></div>
+            <div class="preview-chart">
+              <div class="preview-bar"></div>
+              <div class="preview-bar"></div>
+              <div class="preview-bar"></div>
+              <div class="preview-bar"></div>
+            </div>
+            <div class="preview-chart">
+              <div class="preview-bar"></div>
+              <div class="preview-bar"></div>
+              <div class="preview-bar"></div>
+              <div class="preview-bar"></div>
+            </div>
+          </div>
+        </div>
+        <div class="theme-content">
+          <span class="theme-badge">自然・フレッシュ</span>
+          <h3 class="theme-name">3. ナチュラルシードル</h3>
+          <p class="theme-description">
+            グリーンとゴールドを基調とした、シードル（りんご酒）の自然な魅力を表現するテーマ。
+            フレッシュで親しみやすい印象を与えます。
+          </p>
+
+          <div class="color-palette">
+            <div class="palette-title">カラーサンプル</div>
+            <div class="color-row">
+              <div class="color-swatch">
+                <div class="swatch" style="background: #558b2f;"></div>
+                <span class="swatch-label">Primary</span>
+              </div>
+              <div class="color-swatch">
+                <div class="swatch" style="background: #ffc107;"></div>
+                <span class="swatch-label">Secondary</span>
+              </div>
+              <div class="color-swatch">
+                <div class="swatch" style="background: #f9fbe7;"></div>
+                <span class="swatch-label">Background</span>
+              </div>
+              <div class="color-swatch">
+                <div class="swatch" style="background: #8bc34a;"></div>
+                <span class="swatch-label">Accent</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="mui-colors">
+            <h4>MUI カラーパレット</h4>
+            <div class="mui-color-list">
+              <div class="mui-color-item">
+                <div class="mui-color-box" style="background: #558b2f;"></div>
+                <span class="mui-color-code">primary: #558b2f</span>
+              </div>
+              <div class="mui-color-item">
+                <div class="mui-color-box" style="background: #ffc107;"></div>
+                <span class="mui-color-code">secondary: #ffc107</span>
+              </div>
+              <div class="mui-color-item">
+                <div class="mui-color-box" style="background: #d32f2f;"></div>
+                <span class="mui-color-code">error: #d32f2f</span>
+              </div>
+              <div class="mui-color-item">
+                <div class="mui-color-box" style="background: #ff9800;"></div>
+                <span class="mui-color-code">warning: #ff9800</span>
+              </div>
+              <div class="mui-color-item">
+                <div class="mui-color-box" style="background: #4caf50;"></div>
+                <span class="mui-color-code">success: #4caf50</span>
+              </div>
+              <div class="mui-color-item">
+                <div class="mui-color-box" style="background: #f9fbe7;"></div>
+                <span class="mui-color-code">background: #f9fbe7</span>
+              </div>
+            </div>
+          </div>
+
+          <ul class="features-list">
+            <li>シードル・果実酒のブランディングに最適</li>
+            <li>自然派・オーガニック市場との親和性</li>
+            <li>成長・ポジティブな印象を演出</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Theme 4: Premium Dark -->
+      <div class="theme-card theme-premium-dark" onclick="selectTheme(this, 'プレミアムダーク')">
+        <div class="theme-preview">
+          <div class="preview-dashboard">
+            <div class="preview-header"></div>
+            <div class="preview-chart">
+              <div class="preview-bar"></div>
+              <div class="preview-bar"></div>
+              <div class="preview-bar"></div>
+              <div class="preview-bar"></div>
+            </div>
+            <div class="preview-chart">
+              <div class="preview-bar"></div>
+              <div class="preview-bar"></div>
+              <div class="preview-bar"></div>
+              <div class="preview-bar"></div>
+            </div>
+          </div>
+        </div>
+        <div class="theme-content">
+          <span class="theme-badge">洗練・モダン</span>
+          <h3 class="theme-name">4. プレミアムダーク</h3>
+          <p class="theme-description">
+            ダークモードベースの洗練されたテーマ。ネオンカラーのアクセントが
+            データを際立たせ、先進的でプレミアムな印象を与えます。
+          </p>
+
+          <div class="color-palette">
+            <div class="palette-title">カラーサンプル</div>
+            <div class="color-row">
+              <div class="color-swatch">
+                <div class="swatch" style="background: #7c4dff;"></div>
+                <span class="swatch-label">Primary</span>
+              </div>
+              <div class="color-swatch">
+                <div class="swatch" style="background: #69f0ae;"></div>
+                <span class="swatch-label">Secondary</span>
+              </div>
+              <div class="color-swatch">
+                <div class="swatch" style="background: #1a1a2e;"></div>
+                <span class="swatch-label">Background</span>
+              </div>
+              <div class="color-swatch">
+                <div class="swatch" style="background: #448aff;"></div>
+                <span class="swatch-label">Accent</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="mui-colors">
+            <h4>MUI カラーパレット</h4>
+            <div class="mui-color-list">
+              <div class="mui-color-item">
+                <div class="mui-color-box" style="background: #7c4dff;"></div>
+                <span class="mui-color-code">primary: #7c4dff</span>
+              </div>
+              <div class="mui-color-item">
+                <div class="mui-color-box" style="background: #69f0ae;"></div>
+                <span class="mui-color-code">secondary: #69f0ae</span>
+              </div>
+              <div class="mui-color-item">
+                <div class="mui-color-box" style="background: #ff5252;"></div>
+                <span class="mui-color-code">error: #ff5252</span>
+              </div>
+              <div class="mui-color-item">
+                <div class="mui-color-box" style="background: #ffab40;"></div>
+                <span class="mui-color-code">warning: #ffab40</span>
+              </div>
+              <div class="mui-color-item">
+                <div class="mui-color-box" style="background: #69f0ae;"></div>
+                <span class="mui-color-code">success: #69f0ae</span>
+              </div>
+              <div class="mui-color-item">
+                <div class="mui-color-box" style="background: #1a1a2e;"></div>
+                <span class="mui-color-code">background: #1a1a2e</span>
+              </div>
+            </div>
+          </div>
+
+          <ul class="features-list">
+            <li>目の疲れを軽減するダークモード</li>
+            <li>データが鮮やかに際立つ配色</li>
+            <li>モダンでテック感のある印象</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="action-section">
+      <h3>テーマ選択</h3>
+      <p class="selected-theme-display" id="selectedTheme">テーマを選択してください</p>
+      <div class="btn-group">
+        <button class="btn btn-primary" onclick="confirmSelection()" id="confirmBtn" disabled>
+          このテーマで決定
+        </button>
+        <button class="btn btn-secondary" onclick="resetSelection()">
+          選択をリセット
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let selectedThemeName = null;
+
+    function selectTheme(card, themeName) {
+      // Remove selected class from all cards
+      document.querySelectorAll('.theme-card').forEach(c => {
+        c.classList.remove('selected');
+      });
+
+      // Add selected class to clicked card
+      card.classList.add('selected');
+      selectedThemeName = themeName;
+
+      // Update display
+      document.getElementById('selectedTheme').textContent = `選択中: ${themeName}`;
+      document.getElementById('confirmBtn').disabled = false;
+    }
+
+    function confirmSelection() {
+      if (selectedThemeName) {
+        alert(`「${selectedThemeName}」テーマを選択しました。\n\n実装時はこのテーマのカラーパレットをMUIテーマ設定に反映してください。`);
+      }
+    }
+
+    function resetSelection() {
+      document.querySelectorAll('.theme-card').forEach(c => {
+        c.classList.remove('selected');
+      });
+      selectedThemeName = null;
+      document.getElementById('selectedTheme').textContent = 'テーマを選択してください';
+      document.getElementById('confirmBtn').disabled = true;
+    }
+  </script>
+</body>
+</html>

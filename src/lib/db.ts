@@ -12,7 +12,7 @@ export function getPool(): Pool {
   return pool;
 }
 
-export async function query(text: string, params?: any[]) {
+export async function query(text: string, params?: (string | number | boolean | null)[]) {
   const pool = getPool();
   try {
     const result = await pool.query(text, params);

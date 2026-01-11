@@ -36,8 +36,8 @@ export interface ApiCache {
   id: string;
   cacheKey: string;
   endpoint: string;
-  params: Record<string, any>;
-  response: any;
+  params: Record<string, string | number | boolean>;
+  response: Record<string, unknown>;
   expiresAt: Date;
   createdAt: Date;
 }

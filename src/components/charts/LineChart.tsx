@@ -10,11 +10,17 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts';
-import { Box, Paper, Typography } from '@mui/material';
+import { Paper, Typography } from '@mui/material';
+
+interface ChartDataPoint {
+  yearMonth: string;
+  value: number;
+  [key: string]: string | number;
+}
 
 interface LineChartProps {
   title: string;
-  data: any[];
+  data: ChartDataPoint[];
   dataKey: string;
   xAxisKey?: string;
   color?: string;

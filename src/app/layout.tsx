@@ -3,6 +3,7 @@ import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { theme } from './theme';
+import MainLayout from '@/components/layout/MainLayout';
 
 export const metadata: Metadata = {
   title: 'シードル市場分析ダッシュボード',
@@ -20,7 +21,7 @@ export default function RootLayout({
         <AppRouterCacheProvider>
           <ThemeProvider theme={theme}>
             <CssBaseline />
-            {children}
+            <MainLayout>{children}</MainLayout>
           </ThemeProvider>
         </AppRouterCacheProvider>
       </body>

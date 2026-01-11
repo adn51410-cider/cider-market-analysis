@@ -1,8 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { AlcoholCategory } from '@/types';
 
+interface MockDataItem {
+  yearMonth: string;
+  value: number;
+  category: string;
+  dataType: string;
+}
+
 // モックデータ（開発用）
-const MOCK_DATA: Record<string, any[]> = {
+const MOCK_DATA: Record<string, MockDataItem[]> = {
   'シードル': [
     { yearMonth: '2020-01', value: 10000, category: 'シードル', dataType: 'sales' },
     { yearMonth: '2020-02', value: 12000, category: 'シードル', dataType: 'sales' },
