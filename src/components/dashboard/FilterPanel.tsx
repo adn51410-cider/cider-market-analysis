@@ -9,7 +9,13 @@ import {
   Chip,
   OutlinedInput,
   SelectChangeEvent,
+  TextField,
+  Button,
+  Paper,
 } from '@mui/material';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import DescriptionIcon from '@mui/icons-material/Description';
+import { useRouter } from 'next/navigation';
 import { AlcoholCategory, AnalysisView } from '@/types';
 import { useDashboardStore } from '@/stores/dashboardStore';
 
@@ -17,8 +23,15 @@ const ANALYSIS_VIEWS = Object.values(AnalysisView);
 const CATEGORIES = Object.values(AlcoholCategory);
 
 export default function FilterPanel() {
-  const { selectedView, selectedCategories, setSelectedView, setSelectedCategories } =
-    useDashboardStore();
+  const router = useRouter();
+  const {
+    selectedView,
+    selectedCategories,
+    dateRange,
+    setSelectedView,
+    setSelectedCategories,
+    setDateRange,
+  } = useDashboardStore();
 
   const handleViewChange = (event: SelectChangeEvent) => {
     setSelectedView(event.target.value as AnalysisView);
@@ -31,41 +44,102 @@ export default function FilterPanel() {
     );
   };
 
-  return (
-    <Box sx={{ display: 'flex', gap: 2, mb: 4 }}>
-      <FormControl sx={{ minWidth: 200 }}>
-        <InputLabel>分析視点</InputLabel>
-        <Select value={selectedView} label="分析視点" onChange={handleViewChange}>
-          {ANALYSIS_VIEWS.map((view) => (
-            <MenuItem key={view} value={view}>
-              {view}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+  const handleFromChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setDateRange(event.target.value, dateRange.to);
+  };
 
-      <FormControl sx={{ minWidth: 300 }}>
-        <InputLabel>酒類カテゴリー</InputLabel>
-        <Select
-          multiple
-          value={selectedCategories}
-          onChange={handleCategoryChange}
-          input={<OutlinedInput label="酒類カテゴリー" />}
-          renderValue={(selected) => (
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-              {selected.map((value) => (
-                <Chip key={value} label={value} size="small" />
-              ))}
-            </Box>
-          )}
-        >
-          {CATEGORIES.map((category) => (
-            <MenuItem key={category} value={category}>
-              {category}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-    </Box>
+  const handleToChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setDateRange(dateRange.from, event.target.value);
+  };
+
+  const handleRefresh = () => {
+    // データ更新処理（将来的にはAPIから再取得）
+    window.location.reload();
+  };
+
+  const handleReportClick = () => {
+    router.push('/report');
+  };
+
+  return (
+    <Paper sx={{ p: 2, mb: 3 }}>
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, alignItems: 'center' }}>
+        {/* 分析視点 */}
+        <FormControl sx={{ minWidth: 180 }} size="small">
+          <InputLabel>分析視点</InputLabel>
+          <Select value={selectedView} label="分析視点" onChange={handleViewChange}>
+            {ANALYSIS_VIEWS.map((view) => (
+              <MenuItem key={view} value={view}>
+                {view}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        {/* 酒類カテゴリー */}
+        <FormControl sx={{ minWidth: 280 }} size="small">
+          <InputLabel>酒類カテゴリー</InputLabel>
+          <Select
+            multiple
+            value={selectedCategories}
+            onChange={handleCategoryChange}
+            input={<OutlinedInput label="酒類カテゴリー" />}
+            renderValue={(selected) => (
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                {selected.map((value) => (
+                  <Chip key={value} label={value} size="small" color="primary" />
+                ))}
+              </Box>
+            )}
+          >
+            {CATEGORIES.map((category) => (
+              <MenuItem key={category} value={category}>
+                {category}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        {/* 期間選択 */}
+        <TextField
+          label="開始年月"
+          type="month"
+          value={dateRange.from}
+          onChange={handleFromChange}
+          size="small"
+          sx={{ width: 160 }}
+          InputLabelProps={{ shrink: true }}
+        />
+        <TextField
+          label="終了年月"
+          type="month"
+          value={dateRange.to}
+          onChange={handleToChange}
+          size="small"
+          sx={{ width: 160 }}
+          InputLabelProps={{ shrink: true }}
+        />
+
+        {/* アクションボタン */}
+        <Box sx={{ display: 'flex', gap: 1, ml: 'auto' }}>
+          <Button
+            variant="outlined"
+            startIcon={<RefreshIcon />}
+            onClick={handleRefresh}
+            size="small"
+          >
+            更新
+          </Button>
+          <Button
+            variant="contained"
+            startIcon={<DescriptionIcon />}
+            onClick={handleReportClick}
+            size="small"
+          >
+            レポート出力
+          </Button>
+        </Box>
+      </Box>
+    </Paper>
   );
 }
