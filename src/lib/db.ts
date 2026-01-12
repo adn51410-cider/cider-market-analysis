@@ -1,10 +1,18 @@
-import { Pool, PoolClient, QueryResult, QueryResultRow } from 'pg';
+import { Pool as PgPool, PoolClient, QueryResult, QueryResultRow } from 'pg';
+import { Pool as NeonPool } from '@neondatabase/serverless';
+
+// Vercelなどのサーバーレス環境かどうかを判定
+const isServerless = process.env.VERCEL === '1' || process.env.AWS_LAMBDA_FUNCTION_NAME;
+
+// 両方の環境で使用するPool型
+type Pool = PgPool | NeonPool;
 
 let pool: Pool | null = null;
 
 /**
  * データベース接続プールを取得
  * シングルトンパターンで接続プールを管理
+ * サーバーレス環境ではNeonのHTTP対応Poolを使用
  */
 export function getPool(): Pool {
   if (!pool) {
@@ -14,18 +22,30 @@ export function getPool(): Pool {
       throw new Error('DATABASE_URL environment variable is not set');
     }
 
-    pool = new Pool({
-      connectionString,
-      ssl: process.env.NODE_ENV === 'production'
-        ? { rejectUnauthorized: false }
-        : { rejectUnauthorized: false }, // Neon requires SSL
-      max: 10, // 最大接続数
-      idleTimeoutMillis: 30000, // アイドルタイムアウト
-      connectionTimeoutMillis: 10000, // 接続タイムアウト（10秒）
-    });
+    // サーバーレス環境ではNeonのPoolを使用
+    if (isServerless) {
+      pool = new NeonPool({
+        connectionString,
+        ssl: { rejectUnauthorized: false },
+        max: 10,
+        idleTimeoutMillis: 30000,
+        connectionTimeoutMillis: 10000,
+      });
+    } else {
+      // 通常環境ではpgのPoolを使用
+      pool = new PgPool({
+        connectionString,
+        ssl: process.env.NODE_ENV === 'production'
+          ? { rejectUnauthorized: false }
+          : { rejectUnauthorized: false }, // Neon requires SSL
+        max: 10, // 最大接続数
+        idleTimeoutMillis: 30000, // アイドルタイムアウト
+        connectionTimeoutMillis: 10000, // 接続タイムアウト（10秒）
+      });
+    }
 
     // 接続エラーのハンドリング
-    pool.on('error', (err) => {
+    pool.on('error', (err: Error) => {
       // eslint-disable-next-line no-console
       console.error('Unexpected error on idle database client', err);
     });

@@ -368,3 +368,31 @@ inject_knowledge ツールで keyword: "@E2Eテストオーケストレーター
 **重要**:
 - この原則はCLAUDE.mdに記載されているため、compact後も自動で適用される
 - セッション開始時にこのセクションがない場合、オーケストレーターが自動で追加する
+
+---
+
+## デプロイ設定
+
+### Vercel（検証環境）
+```yaml
+デプロイ日: 2026-01-13
+URL: https://cider-market-analysis.vercel.app
+ステータス: ✅ 稼働中
+
+環境変数:
+  - DATABASE_URL: Neon PostgreSQL接続URL
+  - ESTAT_API_KEY: e-Stat APIアプリケーションID
+  - NEXT_PUBLIC_APP_URL: https://cider-market-analysis.vercel.app
+
+データベース構成: A（お試しデプロイ - 開発DBをそのまま使用）
+
+動作確認:
+  - ヘルスチェックAPI: ✅ 正常
+  - 市場データAPI: ✅ 正常
+  - データベース接続: ✅ 正常
+```
+
+### Cloud Run（本番環境）
+```yaml
+ステータス: 🔜 未デプロイ（待機中）
+```
