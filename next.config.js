@@ -47,6 +47,23 @@ const nextConfig = {
   compiler: {
     emotion: true,
   },
+  // サーバーサイド専用モジュールの外部化設定
+  serverExternalPackages: ['pg', 'pg-native'],
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      // クライアントサイドではpg関連モジュールを無視
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+        dns: false,
+        pg: false,
+        'pg-native': false,
+      };
+    }
+    return config;
+  },
   async headers() {
     return [
       {
