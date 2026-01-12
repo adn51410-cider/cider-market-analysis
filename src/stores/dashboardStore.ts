@@ -17,8 +17,9 @@ export const useDashboardStore = create<DashboardState>((set) => ({
   selectedView: AnalysisView.MARKET_SHARE,
   selectedCategories: [AlcoholCategory.CIDER, AlcoholCategory.WINE],
   dateRange: {
+    // e-Stat家計調査データは1985年〜2025年11月まで利用可能（2025年改定版）
     from: '2020-01',
-    to: new Date().toISOString().slice(0, 7),
+    to: '2025-11',
   },
   setSelectedView: (view) => set({ selectedView: view }),
   setSelectedCategories: (categories) => set({ selectedCategories: categories }),

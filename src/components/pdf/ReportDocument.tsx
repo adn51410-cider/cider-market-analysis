@@ -21,17 +21,18 @@ import {
   Font,
 } from '@react-pdf/renderer';
 
-// Google Fonts - Noto Sans JP（日本語対応フォント）
-// https://fonts.google.com/noto/specimen/Noto+Sans+JP
+// ローカルフォント - Noto Sans JP（日本語対応フォント）
+// 外部URLからの取得は不安定なため、ローカルファイルを使用
+// フォントファイルは public/fonts/ ディレクトリに配置
 Font.register({
   family: 'NotoSansJP',
   fonts: [
     {
-      src: 'https://fonts.gstatic.com/s/notosansjp/v53/-F6jfjtqLzI2JPCgQBnw7HFyzSD-AsregP8VFBEi75g.ttf',
+      src: '/fonts/NotoSansJP-Regular.ttf',
       fontWeight: 'normal',
     },
     {
-      src: 'https://fonts.gstatic.com/s/notosansjp/v53/-F6jfjtqLzI2JPCgQBnw7HFyzSD-AsregP8VFJYi75vNNg.ttf',
+      src: '/fonts/NotoSansJP-Bold.ttf',
       fontWeight: 'bold',
     },
   ],

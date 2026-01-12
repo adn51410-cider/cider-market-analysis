@@ -12,6 +12,7 @@ export interface EstatApiParams {
   statsDataId: string;        // 統計表ID
   cdCat01?: string;           // 分類コード01
   cdCat02?: string;           // 分類コード02
+  cdArea?: string;            // 地域コード
   cdTime?: string;            // 時間軸コード
   cdTimeFrom?: string;        // 時間軸開始コード
   cdTimeTo?: string;          // 時間軸終了コード
@@ -148,14 +149,32 @@ const BASE_RETRY_DELAY_MS = 1000;           // 基本リトライ遅延（1秒�
 const CACHE_TTL_MINUTES = 5;                // キャッシュ有効期限（5分）
 
 // 酒類カテゴリーマッピング（e-Stat分類コード → 表示名）
+// 統計表ID: 0003015188 (家計調査 品目分類（平成22年改定）)
+// 注: コードは統計表によって異なるため、NAME_MAPPINGも併用
 export const CATEGORY_MAPPING: Record<string, string> = {
-  '5310': 'ワイン',           // 果実酒（ワイン含む）
-  '5311': 'ワイン',           // ワイン
-  '5312': 'シードル',         // シードル・その他果実酒
-  '5320': '日本酒',           // 清酒
-  '5330': 'ビール',           // ビール
-  '5340': '焼酎',             // 焼酎
-  '5350': 'ウイスキー',       // ウイスキー
+  '011100010': '日本酒',       // 清酒
+  '011100030': 'ビール',       // ビール
+  '011100050': 'ワイン',       // ワイン
+  '011100060': 'ビール',       // 発泡酒・ビール風アルコール飲料
+  '011100070': 'シードル',     // 他の酒（シードル含む）
+};
+
+// e-Stat分類名 → アプリカテゴリー名マッピング
+// CLASS_INFから取得した名前をアプリのカテゴリに変換
+export const NAME_MAPPING: Record<string, string> = {
+  '清酒': '日本酒',
+  'ビール': 'ビール',
+  '発泡酒': 'ビール',
+  '発泡酒・ビール風アルコール飲料': 'ビール',
+  'ぶどう酒': 'ワイン',
+  'ワイン': 'ワイン',
+  'しょうちゅう': '焼酎',
+  '焼ちゅう': '焼酎',
+  '焼酎': '焼酎',
+  'ウイスキー': 'ウイスキー',
+  '他の酒': 'シードル',     // シードルは「他の酒」に含まれる
+  'その他の酒': 'シードル',
+  '酒類': 'その他',
 };
 
 // データタイプマッピング
@@ -566,17 +585,41 @@ function parseNumericValue(value: string): number | null {
 
 /**
  * カテゴリーを解決
+ * 1. CATEGORY_MAPPING（コード直接マッピング）をチェック
+ * 2. classMappingから名前を取得し、NAME_MAPPINGで変換
+ * 3. 名前にキーワードが含まれているかチェック
  */
 function resolveCategory(
   categoryCode: string,
   classMapping: Record<string, string>
 ): string {
+  // 1. コード直接マッピング
   if (CATEGORY_MAPPING[categoryCode]) {
     return CATEGORY_MAPPING[categoryCode];
   }
-  if (classMapping[categoryCode]) {
-    return classMapping[categoryCode];
+
+  // 2. CLASS_INFから名前を取得
+  const estatName = classMapping[categoryCode];
+  if (estatName) {
+    // 完全一致チェック
+    if (NAME_MAPPING[estatName]) {
+      return NAME_MAPPING[estatName];
+    }
+
+    // 3. キーワード部分一致チェック
+    for (const [keyword, category] of Object.entries(NAME_MAPPING)) {
+      if (estatName.includes(keyword)) {
+        return category;
+      }
+    }
+
+    // e-Stat名がそのままカテゴリー名として使える場合
+    const validCategories = ['日本酒', 'ビール', 'ワイン', '焼酎', 'ウイスキー', 'シードル'];
+    if (validCategories.includes(estatName)) {
+      return estatName;
+    }
   }
+
   return 'その他';
 }
 
@@ -650,6 +693,17 @@ function buildClassMapping(classObjects?: ClassObject[]): Record<string, string>
 // 家計調査データ取得（高レベルAPI）
 // ============================================================
 
+// 酒類カテゴリコード（e-Stat品目分類 2025年改定版）
+const ALCOHOL_CATEGORY_CODES = [
+  '011100000',  // 酒類（合計）
+  '011100010',  // 清酒
+  '011100030',  // ビール
+  '011100040',  // ウイスキー
+  '011100050',  // ワイン
+  '011100060',  // 発泡酒
+  '011100080',  // 他の酒（シードル含む）- 2025年改定版では011100080
+];
+
 /**
  * 家計調査の酒類データを取得（メイン関数）
  * @param options 取得オプション
@@ -662,22 +716,24 @@ export async function fetchHouseholdSurveyAlcoholData(options: {
 }): Promise<MarketDataRow[]> {
   const { fromYear, toYear, categories } = options;
 
-  // 家計調査の酒類関連統計表ID
-  // 00200561 - 家計調査 / 家計収支編 / 二人以上の世帯
-  const statsDataId = '0002070001'; // 家計調査 品目分類（2020年改定）
+  // 家計調査の酒類関連統計表ID - 月次データ（2025年改定版、〜2025年11月）
+  const statsDataId = '0004023601';
 
   const params: EstatApiParams = {
     statsDataId,
-    metaGetFlg: 'Y',
-    cntGetFlg: 'Y',
+    startPosition: 1,  // データ取得に必須
+    limit: 10000,      // 十分な件数を取得
+    cdCat01: ALCOHOL_CATEGORY_CODES.join(','),  // 酒類カテゴリのみ取得
+    cdArea: '00000',  // 全国
+    cdCat02: '03',    // 二人以上の世帯
   };
 
-  // 時間範囲の設定
+  // 時間範囲の設定 (形式: YYYY00MMDD)
   if (fromYear) {
     params.cdTimeFrom = `${fromYear}000101`;
   }
   if (toYear) {
-    params.cdTimeTo = `${toYear}001231`;
+    params.cdTimeTo = `${toYear}001212`;
   }
 
   try {

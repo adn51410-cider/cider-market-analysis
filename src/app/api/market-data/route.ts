@@ -88,11 +88,23 @@ function isValidDateRange(from: string, to: string): boolean {
 /**
  * 年月からe-Stat時間軸コードに変換
  * 例: "2024-01" → "2024000101"
+ * 形式: YYYY00MMDD (MMとDDは同じ値)
  */
 function yearMonthToEstatTimeCode(yearMonth: string): string {
   const [year, month] = yearMonth.split('-');
-  return `${year}0000${month}01`;
+  return `${year}00${month}${month}`;
 }
+
+// 酒類カテゴリコード（e-Stat品目分類 2025年改定版）
+const ALCOHOL_CATEGORY_CODES = [
+  '011100000',  // 酒類（合計）
+  '011100010',  // 清酒
+  '011100030',  // ビール
+  '011100040',  // ウイスキー
+  '011100050',  // ワイン
+  '011100060',  // 発泡酒
+  '011100080',  // 他の酒（シードル含む）- 2025年改定版では011100080
+];
 
 // ============================================================
 // データベース操作
@@ -167,17 +179,20 @@ async function fetchAndSaveEstatData(
   to: string
 ): Promise<MarketDataRow[]> {
   const params: EstatApiParams = {
-    statsDataId: '0002070001', // 家計調査 品目分類
-    metaGetFlg: 'Y',
-    cntGetFlg: 'Y',
+    statsDataId: '0004023601', // 家計調査 品目分類（2025年改定）- 月次データ（〜2025年11月）
+    startPosition: 1,  // データ取得に必須
+    limit: 10000,      // 十分な件数を取得
     cdTimeFrom: yearMonthToEstatTimeCode(from),
     cdTimeTo: yearMonthToEstatTimeCode(to),
+    cdCat01: ALCOHOL_CATEGORY_CODES.join(','),  // 酒類カテゴリのみ取得
+    cdArea: '00000',  // 全国
+    cdCat02: '03',    // 二人以上の世帯
   };
 
   const response = await fetchEstatData(params);
   let marketData = transformEstatResponse(response);
 
-  // カテゴリーでフィルタリング
+  // カテゴリーでフィルタリング（ユーザー指定のカテゴリに絞り込む）
   marketData = marketData.filter((item) => categories.includes(item.category));
 
   // 期間でフィルタリング

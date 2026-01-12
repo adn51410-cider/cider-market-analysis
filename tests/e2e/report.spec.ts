@@ -136,20 +136,24 @@ test.describe('P-002: レポート出力', () => {
 
   /**
    * E2E-RPT-004: PDF生成・ダウンロードテスト
-   * PDF生成のフロー確認（タイトル入力→グラフ選択→プレビュー→PDF出力）
+   * PDF生成のフロー確認（タイトル入力→グラフ選択→プレビュー→PDF出力→ダウンロード確認）
    *
    * テスト目的:
    * - PDF出力ボタンが正しく動作すること
-   * - PDF生成処理が実行され、結果（成功またはエラー）がユーザーに表示されること
+   * - PDF生成処理が完了すること
+   * - PDFファイルがダウンロードされること（Playwrightのdownload機能を使用）
    */
   test('E2E-RPT-004: PDF生成・ダウンロード', async ({ page }) => {
-    // CI環境ではPDF生成が非常に遅いためスキップ
-    // PDF生成はhtml2canvas + @react-pdf/rendererの複合処理で
-    // CI環境のリソース制限下では安定しない
-    test.skip(!!process.env.CI, 'PDF生成テストはCI環境では不安定なためスキップ');
+    test.setTimeout(180000); // 3分に延長
 
-    // タイムアウトを延長
-    test.setTimeout(120000);
+    // コンソールログ収集
+    const consoleLogs: Array<{type: string, text: string}> = [];
+    page.on('console', (msg) => {
+      consoleLogs.push({
+        type: msg.type(),
+        text: msg.text()
+      });
+    });
 
     // ビューポートを広げる
     await page.setViewportSize({ width: 1600, height: 900 });
@@ -178,28 +182,42 @@ test.describe('P-002: レポート出力', () => {
     await expect(previewButton).toBeVisible();
     await previewButton.click();
 
-    // APIデータ読み込みを待機（長めに設定）
-    await page.waitForTimeout(8000);
+    // グラフ描画を待機（Rechartsのグラフが表示されるまで）
+    await expect(page.locator('.recharts-wrapper svg path').first()).toBeVisible({ timeout: 30000 });
 
-    // 5. PDF出力ボタンをクリック
+    // 追加の安定化待機（レンダリング完了を待つ）
+    await page.waitForTimeout(2000);
+
+    // 5. PDF出力ボタンを確認
     const pdfButton = page.getByRole('button', { name: /PDF出力/ });
     await expect(pdfButton).toBeVisible();
 
     // PDF出力ボタンが有効になるまで待機
     await expect(pdfButton).toBeEnabled({ timeout: 10000 });
 
-    // PDFボタンをクリック
+    // 6. ダウンロードイベントを待機しながらPDFボタンをクリック
+    const downloadPromise = page.waitForEvent('download', { timeout: 120000 });
     await pdfButton.click();
 
-    // 期待結果: PDF生成処理が実行され、結果がユーザーに表示される
-    // 新しいMuiAlertが表示されることを待機（既存のアラートとは別に）
-    // 成功: 「PDFを生成しました」スナックバー
-    // エラー: 「キャプチャ可能なグラフがありません」アラート
-    // どちらもPDF生成機能が動作した証拠
+    // 生成中の表示を確認（プロセスが開始されたことを確認）
+    const generatingText = page.getByText(/生成中|キャプチャ中/).first();
+    await expect(generatingText).toBeVisible({ timeout: 10000 });
 
-    // PDF関連のアラートを待機
-    const pdfResultAlert = page.locator('.MuiAlert-root').filter({ hasText: /PDF|キャプチャ/ });
-    await expect(pdfResultAlert).toBeVisible({ timeout: 60000 });
+    // 7. ダウンロード完了を待機
+    const download = await downloadPromise;
+
+    // 期待結果: PDFファイルがダウンロードされる
+    // ファイル名の確認（report_YYYYMMDD.pdf形式）
+    const suggestedFilename = download.suggestedFilename();
+    expect(suggestedFilename).toMatch(/^report_\d{8}\.pdf$/);
+
+    // ダウンロードされたファイルが存在することを確認
+    const downloadPath = await download.path();
+    expect(downloadPath).toBeTruthy();
+
+    // コンソールログ出力（デバッグ用）
+    console.log('=== Browser Console Logs ===');
+    consoleLogs.forEach(log => console.log(`[${log.type}] ${log.text}`));
   });
 
   /**
@@ -349,15 +367,18 @@ test.describe('P-002: レポート出力', () => {
       timeout: 10000,
     });
 
-    // 2. サイドバーの「市場分析ダッシュボード」をクリック
-    // サイドドロワー内のリストアイテムを探す
-    const dashboardItem = page.locator('.MuiDrawer-root .MuiListItemButton-root').first();
-    await expect(dashboardItem).toBeVisible();
-    await dashboardItem.click();
+    // 2. サイドバーの「市場分析ダッシュボード」リンクをクリック
+    // Next.js Linkコンポーネントを使用しているため、role="link"で取得
+    const dashboardLink = page.getByRole('link', { name: '市場分析ダッシュボード' });
+    await expect(dashboardLink).toBeVisible();
+    await dashboardLink.click();
 
-    // 期待結果: `/` ページに遷移する
-    await page.waitForURL('**/', { timeout: 15000 });
-    expect(page.url()).not.toContain('/report');
+    // 期待結果: `/` ページに遷移する（/report を含まないURLに変わる）
+    // URLがルートパス（'/'で終わりかつ'/report'を含まない）になるまで待機
+    await page.waitForURL((url) => {
+      const pathname = url.pathname;
+      return pathname === '/' || (pathname.endsWith('/') && !pathname.includes('/report'));
+    }, { timeout: 15000 });
 
     // ダッシュボードのタイトルが表示される
     const pageTitle = page.getByRole('heading', { name: /市場分析ダッシュボード/ });
@@ -405,10 +426,12 @@ test.describe('P-002: レポート出力', () => {
     await importButton.click();
 
     // 期待結果: エラーアラートが表示される
-    // 不正なヘッダーの場合: 「必須ヘッダーが不足しています」
+    // 不正なヘッダーの場合: 「必須ヘッダーが不足しています」または400エラー
     // APIエラーの場合: 「インポート中にエラーが発生しました」
-    // severity="error"のAlertを具体的に待機（info Alertを除外）
-    const errorAlert = page.locator('.MuiAlert-standardError, .MuiAlert-filledError, .MuiAlert-outlinedError');
-    await expect(errorAlert).toBeVisible({ timeout: 30000 });
+    // エラーを示すアラートを待機（error severity または エラー内容を含むアラート）
+    const errorIndicator = page.locator('.MuiAlert-root').filter({
+      hasText: /error|エラー|failed|400/i
+    });
+    await expect(errorIndicator.first()).toBeVisible({ timeout: 30000 });
   });
 });

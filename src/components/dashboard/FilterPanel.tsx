@@ -128,7 +128,7 @@ export default function FilterPanel({
           </Select>
         </FormControl>
 
-        {/* 期間選択 */}
+        {/* 期間選択（e-Stat家計調査データ: 1985年〜2025年11月） */}
         <TextField
           label="開始年月"
           type="month"
@@ -137,6 +137,8 @@ export default function FilterPanel({
           size="small"
           sx={{ width: 160 }}
           InputLabelProps={{ shrink: true }}
+          inputProps={{ min: '1985-01', max: '2025-11' }}
+          helperText="1985-01〜2025-11"
         />
         <TextField
           label="終了年月"
@@ -146,6 +148,8 @@ export default function FilterPanel({
           size="small"
           sx={{ width: 160 }}
           InputLabelProps={{ shrink: true }}
+          inputProps={{ min: '1985-01', max: '2025-11' }}
+          helperText="1985-01〜2025-11"
         />
 
         {/* アクションボタン */}

@@ -306,15 +306,15 @@ test.describe('P-001: 市場分析ダッシュボード', () => {
     });
 
     // 2. 「レポート出力」ボタンをクリック
-    // MUIのcontainedボタン（紺色）でDescriptionIconを持つボタン
-    const reportButton = page.locator('button.MuiButton-contained').filter({ hasText: /レポート/ });
+    // ボタンのテキストで直接取得（より安定したセレクター）
+    const reportButton = page.getByRole('button', { name: 'レポート出力' });
     await expect(reportButton).toBeVisible({ timeout: 5000 });
 
-    // クリック後のナビゲーションを待機
-    await Promise.all([
-      page.waitForURL('**/report**', { timeout: 20000 }),
-      reportButton.click(),
-    ]);
+    // ボタンをクリック
+    await reportButton.click();
+
+    // ナビゲーション完了を待機（Next.jsのルーター遷移）
+    await page.waitForURL('**/report', { timeout: 30000 });
 
     // 期待結果1: `/report` ページに遷移する
     expect(page.url()).toContain('/report');
