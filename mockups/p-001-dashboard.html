@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>P-001: 市場分析ダッシュボード - モックアップ</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      /* ナチュラルシードルテーマ */
+      --primary-main: #558B2F;
+      --primary-light: #7CB342;
+      --primary-dark: #33691E;
+      --secondary-main: #FFC107;
+      --secondary-light: #FFD54F;
+      --secondary-dark: #FFA000;
+      --background-default: #F1F8E9;
+      --background-paper: #FFFFFF;
+      --text-primary: #1B5E20;
+      --text-secondary: #558B2F;
+      --error-main: #D32F2F;
+      --success-main: #388E3C;
+      --warning-main: #F57C00;
+      --info-main: #1976D2;
+    }
+
+    body {
+      font-family: 'Meiryo', 'Noto Sans JP', sans-serif;
+      background: var(--background-default);
+      min-height: 100vh;
+    }
+
+    /* AppBar */
+    .app-bar {
+      background: var(--primary-main);
+      color: white;
+      padding: 0 24px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      box-shadow: 0 1px 3px rgba(85, 139, 47, 0.12);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1100;
+    }
+
+    .app-bar-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .app-bar-spacer {
+      flex: 1;
+    }
+
+    .app-bar-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    /* Layout */
+    .layout {
+      display: flex;
+      padding-top: 64px;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 240px;
+      background: var(--background-paper);
+      min-height: calc(100vh - 64px);
+      border-right: 1px solid rgba(85, 139, 47, 0.12);
+      position: fixed;
+      left: 0;
+      top: 64px;
+      bottom: 0;
+      overflow-y: auto;
+    }
+
+    .sidebar-item {
+      display: flex;
+      align-items: center;
+      padding: 12px 24px;
+      color: var(--text-primary);
+      text-decoration: none;
+      gap: 16px;
+      transition: background 0.2s;
+    }
+
+    .sidebar-item:hover {
+      background: rgba(85, 139, 47, 0.08);
+    }
+
+    .sidebar-item.active {
+      background: rgba(85, 139, 47, 0.12);
+      color: var(--primary-main);
+      font-weight: 600;
+    }
+
+    .sidebar-divider {
+      height: 1px;
+      background: rgba(85, 139, 47, 0.12);
+      margin: 8px 0;
+    }
+
+    /* Main Content */
+    .main-content {
+      margin-left: 240px;
+      flex: 1;
+      padding: 24px;
+      min-height: calc(100vh - 64px);
+    }
+
+    /* Page Title */
+    .page-title {
+      color: var(--primary-main);
+      font-size: 2rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .page-subtitle {
+      color: var(--text-secondary);
+      font-size: 1rem;
+      margin-bottom: 24px;
+    }
+
+    /* Filter Panel */
+    .filter-panel {
+      background: var(--background-paper);
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 8px rgba(85, 139, 47, 0.1);
+    }
+
+    .filter-row {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      align-items: flex-end;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .filter-label {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .filter-select {
+      padding: 10px 14px;
+      border: 1px solid rgba(85, 139, 47, 0.3);
+      border-radius: 8px;
+      font-size: 1rem;
+      min-width: 200px;
+      background: white;
+      color: var(--text-primary);
+    }
+
+    .filter-select:focus {
+      outline: none;
+      border-color: var(--primary-main);
+      box-shadow: 0 0 0 2px rgba(85, 139, 47, 0.2);
+    }
+
+    .filter-chips {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      flex: 1;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 12px;
+      border-radius: 16px;
+      font-size: 0.875rem;
+      gap: 4px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .chip.active {
+      background: var(--primary-main);
+      color: white;
+    }
+
+    .chip.inactive {
+      background: rgba(85, 139, 47, 0.1);
+      color: var(--text-primary);
+    }
+
+    .chip:hover {
+      opacity: 0.8;
+    }
+
+    .chip-wine { background: #1976d2; color: white; }
+    .chip-sake { background: #dc004e; color: white; }
+    .chip-cider { background: var(--primary-main); color: white; }
+    .chip-beer { background: #ff9800; color: white; }
+    .chip-shochu { background: #9c27b0; color: white; }
+
+    /* Summary Cards */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .summary-card {
+      padding: 20px;
+      border-radius: 8px;
+      color: white;
+    }
+
+    .summary-card.primary {
+      background: var(--primary-main);
+    }
+
+    .summary-card.success {
+      background: var(--success-main);
+    }
+
+    .summary-card.secondary {
+      background: var(--secondary-main);
+      color: #000;
+    }
+
+    .summary-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.875rem;
+      margin-bottom: 8px;
+    }
+
+    .summary-value {
+      font-size: 2rem;
+      font-weight: 700;
+    }
+
+    .summary-unit {
+      font-size: 0.75rem;
+      opacity: 0.9;
+    }
+
+    /* Chart Card */
+    .chart-card {
+      background: var(--background-paper);
+      border-radius: 8px;
+      padding: 24px;
+      box-shadow: 0 2px 8px rgba(85, 139, 47, 0.1);
+      margin-bottom: 24px;
+    }
+
+    .chart-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .chart-area {
+      height: 350px;
+      background: linear-gradient(180deg, rgba(85, 139, 47, 0.05) 0%, rgba(85, 139, 47, 0.02) 100%);
+      border-radius: 8px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-around;
+      padding: 20px;
+      position: relative;
+    }
+
+    .chart-bar {
+      width: 40px;
+      border-radius: 4px 4px 0 0;
+      transition: height 0.3s;
+    }
+
+    .chart-bar-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .chart-bar-container {
+      display: flex;
+      gap: 4px;
+      align-items: flex-end;
+      height: 280px;
+    }
+
+    .chart-label {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    /* Y-axis */
+    .y-axis {
+      position: absolute;
+      left: 0;
+      top: 20px;
+      bottom: 40px;
+      width: 60px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: flex-end;
+      padding-right: 8px;
+    }
+
+    .y-axis-label {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    /* Legend */
+    .chart-legend {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.875rem;
+      color: var(--text-primary);
+    }
+
+    .legend-color {
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+    }
+
+    /* Footer Info */
+    .footer-info {
+      background: var(--background-paper);
+      border-radius: 8px;
+      padding: 16px;
+      margin-top: 24px;
+    }
+
+    .footer-info p {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+
+    .footer-info small {
+      font-size: 0.75rem;
+      color: rgba(85, 139, 47, 0.6);
+    }
+
+    /* Button */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: var(--primary-main);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+    }
+
+    .btn-outlined {
+      background: transparent;
+      color: var(--primary-main);
+      border: 1px solid var(--primary-main);
+    }
+
+    .btn-outlined:hover {
+      background: rgba(85, 139, 47, 0.08);
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .sidebar {
+        display: none;
+      }
+      .main-content {
+        margin-left: 0;
+      }
+      .summary-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Material Icons */
+    .material-icons {
+      font-size: 24px;
+    }
+
+    .material-icons.small {
+      font-size: 20px;
+    }
+  </style>
+</head>
+<body>
+  <!-- AppBar -->
+  <header class="app-bar">
+    <div class="app-bar-title">
+      <span class="material-icons">analytics</span>
+      シードル市場分析ダッシュボード
+    </div>
+    <div class="app-bar-spacer"></div>
+    <div class="app-bar-actions">
+      <button class="btn btn-outlined" style="color: white; border-color: rgba(255,255,255,0.5);">
+        <span class="material-icons small">refresh</span>
+        データ更新
+      </button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- Sidebar -->
+    <nav class="sidebar">
+      <a href="#" class="sidebar-item active">
+        <span class="material-icons">dashboard</span>
+        ダッシュボード
+      </a>
+      <a href="p-002-report.html" class="sidebar-item">
+        <span class="material-icons">picture_as_pdf</span>
+        レポート出力
+      </a>
+      <div class="sidebar-divider"></div>
+      <a href="#" class="sidebar-item">
+        <span class="material-icons">help_outline</span>
+        ヘルプ
+      </a>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Page Title -->
+      <h1 class="page-title">市場分析ダッシュボード</h1>
+      <p class="page-subtitle">シードルと他の酒類市場を6つの視点で比較分析</p>
+
+      <!-- Filter Panel -->
+      <div class="filter-panel">
+        <div class="filter-row">
+          <div class="filter-group">
+            <label class="filter-label">分析視点</label>
+            <select class="filter-select">
+              <option value="market_share" selected>市場規模推移</option>
+              <option value="growth_trend">成長率トレンド</option>
+              <option value="price_analysis">平均価格推移</option>
+              <option value="seasonal_pattern">季節性パターン</option>
+              <option value="demographic">消費者属性別購入金額</option>
+              <option value="regional">地域別消費動向</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label">期間</label>
+            <select class="filter-select">
+              <option value="12m" selected>直近12ヶ月</option>
+              <option value="6m">直近6ヶ月</option>
+              <option value="24m">直近24ヶ月</option>
+              <option value="custom">カスタム期間</option>
+            </select>
+          </div>
+
+          <div class="filter-group" style="flex: 1;">
+            <label class="filter-label">酒類カテゴリー（クリックで選択/解除）</label>
+            <div class="filter-chips">
+              <span class="chip chip-wine">
+                <span class="material-icons small">check</span>
+                ワイン
+              </span>
+              <span class="chip chip-sake">
+                <span class="material-icons small">check</span>
+                日本酒
+              </span>
+              <span class="chip chip-cider">
+                <span class="material-icons small">check</span>
+                シードル
+              </span>
+              <span class="chip chip-beer">
+                <span class="material-icons small">check</span>
+                ビール
+              </span>
+              <span class="chip chip-shochu">
+                <span class="material-icons small">check</span>
+                焼酎
+              </span>
+              <span class="chip inactive">ウイスキー</span>
+              <span class="chip inactive">その他</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Summary Cards -->
+      <div class="summary-grid">
+        <div class="summary-card primary">
+          <div class="summary-header">
+            <span class="material-icons small">show_chart</span>
+            選択カテゴリー合計
+          </div>
+          <div class="summary-value">2,450</div>
+          <div class="summary-unit">百万円（直近月）</div>
+        </div>
+
+        <div class="summary-card success">
+          <div class="summary-header">
+            <span class="material-icons small">trending_up</span>
+            前月比成長率
+          </div>
+          <div class="summary-value">+3.2%</div>
+          <div class="summary-unit">月次成長率</div>
+        </div>
+
+        <div class="summary-card secondary">
+          <div class="summary-header">
+            <span class="material-icons small">pie_chart</span>
+            分析対象
+          </div>
+          <div class="summary-value">5</div>
+          <div class="summary-unit">カテゴリー</div>
+        </div>
+      </div>
+
+      <!-- Chart -->
+      <div class="chart-card">
+        <h2 class="chart-title">
+          <span class="material-icons">bar_chart</span>
+          市場規模推移
+        </h2>
+
+        <div class="chart-area">
+          <!-- Mock Chart Bars -->
+          <div class="chart-bar-group">
+            <div class="chart-bar-container">
+              <div class="chart-bar" style="height: 180px; background: #1976d2;"></div>
+              <div class="chart-bar" style="height: 140px; background: #dc004e;"></div>
+              <div class="chart-bar" style="height: 40px; background: #558B2F;"></div>
+              <div class="chart-bar" style="height: 220px; background: #ff9800;"></div>
+              <div class="chart-bar" style="height: 100px; background: #9c27b0;"></div>
+            </div>
+            <span class="chart-label">2024-07</span>
+          </div>
+
+          <div class="chart-bar-group">
+            <div class="chart-bar-container">
+              <div class="chart-bar" style="height: 190px; background: #1976d2;"></div>
+              <div class="chart-bar" style="height: 145px; background: #dc004e;"></div>
+              <div class="chart-bar" style="height: 45px; background: #558B2F;"></div>
+              <div class="chart-bar" style="height: 230px; background: #ff9800;"></div>
+              <div class="chart-bar" style="height: 110px; background: #9c27b0;"></div>
+            </div>
+            <span class="chart-label">2024-08</span>
+          </div>
+
+          <div class="chart-bar-group">
+            <div class="chart-bar-container">
+              <div class="chart-bar" style="height: 200px; background: #1976d2;"></div>
+              <div class="chart-bar" style="height: 155px; background: #dc004e;"></div>
+              <div class="chart-bar" style="height: 50px; background: #558B2F;"></div>
+              <div class="chart-bar" style="height: 240px; background: #ff9800;"></div>
+              <div class="chart-bar" style="height: 115px; background: #9c27b0;"></div>
+            </div>
+            <span class="chart-label">2024-09</span>
+          </div>
+
+          <div class="chart-bar-group">
+            <div class="chart-bar-container">
+              <div class="chart-bar" style="height: 185px; background: #1976d2;"></div>
+              <div class="chart-bar" style="height: 160px; background: #dc004e;"></div>
+              <div class="chart-bar" style="height: 55px; background: #558B2F;"></div>
+              <div class="chart-bar" style="height: 235px; background: #ff9800;"></div>
+              <div class="chart-bar" style="height: 105px; background: #9c27b0;"></div>
+            </div>
+            <span class="chart-label">2024-10</span>
+          </div>
+
+          <div class="chart-bar-group">
+            <div class="chart-bar-container">
+              <div class="chart-bar" style="height: 210px; background: #1976d2;"></div>
+              <div class="chart-bar" style="height: 165px; background: #dc004e;"></div>
+              <div class="chart-bar" style="height: 60px; background: #558B2F;"></div>
+              <div class="chart-bar" style="height: 250px; background: #ff9800;"></div>
+              <div class="chart-bar" style="height: 120px; background: #9c27b0;"></div>
+            </div>
+            <span class="chart-label">2024-11</span>
+          </div>
+
+          <div class="chart-bar-group">
+            <div class="chart-bar-container">
+              <div class="chart-bar" style="height: 220px; background: #1976d2;"></div>
+              <div class="chart-bar" style="height: 170px; background: #dc004e;"></div>
+              <div class="chart-bar" style="height: 65px; background: #558B2F;"></div>
+              <div class="chart-bar" style="height: 260px; background: #ff9800;"></div>
+              <div class="chart-bar" style="height: 125px; background: #9c27b0;"></div>
+            </div>
+            <span class="chart-label">2024-12</span>
+          </div>
+        </div>
+
+        <div class="chart-legend">
+          <div class="legend-item">
+            <div class="legend-color" style="background: #1976d2;"></div>
+            ワイン
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background: #dc004e;"></div>
+            日本酒
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background: #558B2F;"></div>
+            シードル
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background: #ff9800;"></div>
+            ビール
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background: #9c27b0;"></div>
+            焼酎
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Button -->
+      <div style="text-align: right; margin-bottom: 24px;">
+        <a href="p-002-report.html" class="btn btn-primary">
+          <span class="material-icons small">picture_as_pdf</span>
+          レポート出力
+        </a>
+      </div>
+
+      <!-- Footer Info -->
+      <div class="footer-info">
+        <p>データソース: e-Stat API（家計調査）、国税庁（酒税課税状況表）</p>
+        <small>※ 現在はモックデータを表示しています。実際のAPIデータは後続フェーズで統合されます。</small>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

@@ -4,6 +4,7 @@ import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { theme } from './theme';
 import MainLayout from '@/components/layout/MainLayout';
+import QueryProvider from '@/components/providers/QueryProvider';
 
 export const metadata: Metadata = {
   title: 'シードル市場分析ダッシュボード',
@@ -19,10 +20,12 @@ export default function RootLayout({
     <html lang="ja">
       <body>
         <AppRouterCacheProvider>
-          <ThemeProvider theme={theme}>
-            <CssBaseline />
-            <MainLayout>{children}</MainLayout>
-          </ThemeProvider>
+          <QueryProvider>
+            <ThemeProvider theme={theme}>
+              <CssBaseline />
+              <MainLayout>{children}</MainLayout>
+            </ThemeProvider>
+          </QueryProvider>
         </AppRouterCacheProvider>
       </body>
     </html>

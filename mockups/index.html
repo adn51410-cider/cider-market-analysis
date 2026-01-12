@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>モックアップギャラリー - シードル市場分析ダッシュボード</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary-main: #558B2F;
+      --primary-light: #7CB342;
+      --primary-dark: #33691E;
+      --background-default: #F1F8E9;
+      --background-paper: #FFFFFF;
+      --text-primary: #1B5E20;
+      --text-secondary: #558B2F;
+    }
+
+    body {
+      font-family: 'Noto Sans JP', 'Meiryo', sans-serif;
+      background: var(--background-default);
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 50px;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .subtitle {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+    }
+
+    .project-badge {
+      display: inline-block;
+      background: var(--primary-main);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.875rem;
+      margin-top: 16px;
+    }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 24px;
+    }
+
+    .mockup-card {
+      background: var(--background-paper);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(85, 139, 47, 0.1);
+      transition: all 0.3s ease;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+
+    .mockup-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 12px 40px rgba(85, 139, 47, 0.2);
+    }
+
+    .mockup-preview {
+      height: 200px;
+      background: linear-gradient(135deg, var(--primary-main) 0%, var(--primary-dark) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .mockup-preview .material-icons {
+      font-size: 64px;
+      color: rgba(255, 255, 255, 0.3);
+    }
+
+    .mockup-preview-image {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      right: 10px;
+      bottom: 10px;
+      background: white;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .preview-header {
+      height: 24px;
+      background: var(--primary-main);
+    }
+
+    .preview-body {
+      flex: 1;
+      display: flex;
+    }
+
+    .preview-sidebar {
+      width: 40px;
+      background: #f5f5f5;
+      border-right: 1px solid #e0e0e0;
+    }
+
+    .preview-content {
+      flex: 1;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .preview-card {
+      height: 20px;
+      background: rgba(85, 139, 47, 0.1);
+      border-radius: 4px;
+    }
+
+    .preview-chart {
+      flex: 1;
+      background: rgba(85, 139, 47, 0.05);
+      border-radius: 4px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-around;
+      padding: 8px;
+    }
+
+    .preview-bar {
+      width: 8px;
+      background: var(--primary-main);
+      border-radius: 2px 2px 0 0;
+    }
+
+    .mockup-content {
+      padding: 24px;
+    }
+
+    .mockup-badge {
+      display: inline-block;
+      background: rgba(85, 139, 47, 0.1);
+      color: var(--primary-main);
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+
+    .mockup-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+    }
+
+    .mockup-description {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+
+    .mockup-meta {
+      display: flex;
+      gap: 16px;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+
+    .mockup-meta-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .mockup-meta-item .material-icons {
+      font-size: 16px;
+    }
+
+    .open-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 16px;
+      padding: 10px 20px;
+      background: var(--primary-main);
+      color: white;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.875rem;
+      transition: background 0.2s;
+    }
+
+    .open-link:hover {
+      background: var(--primary-dark);
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 60px;
+      padding-top: 24px;
+      border-top: 1px solid rgba(85, 139, 47, 0.2);
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+    }
+
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 1.8rem;
+      }
+      .gallery-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>
+        <span class="material-icons">dashboard</span>
+        モックアップギャラリー
+      </h1>
+      <p class="subtitle">シードル市場分析ダッシュボード - UI/UXデザインモックアップ</p>
+      <span class="project-badge">ナチュラルシードルテーマ</span>
+    </header>
+
+    <div class="gallery-grid">
+      <!-- Design Theme Selector -->
+      <a href="design-theme-selector.html" class="mockup-card">
+        <div class="mockup-preview" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+          <div class="mockup-preview-image">
+            <div class="preview-header" style="background: #667eea;"></div>
+            <div class="preview-body" style="padding: 8px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+              <div style="background: rgba(102, 126, 234, 0.2); border-radius: 8px;"></div>
+              <div style="background: rgba(118, 75, 162, 0.2); border-radius: 8px;"></div>
+              <div style="background: rgba(85, 139, 47, 0.2); border-radius: 8px;"></div>
+              <div style="background: rgba(26, 26, 46, 0.2); border-radius: 8px;"></div>
+            </div>
+          </div>
+        </div>
+        <div class="mockup-content">
+          <span class="mockup-badge">Phase 3</span>
+          <h3 class="mockup-title">デザインテーマ選択</h3>
+          <p class="mockup-description">
+            4つのデザインテーマ案から選択するためのセレクターページ。
+            各テーマのカラーパレットとプレビューを比較できます。
+          </p>
+          <div class="mockup-meta">
+            <span class="mockup-meta-item">
+              <span class="material-icons">palette</span>
+              4テーマ
+            </span>
+            <span class="mockup-meta-item">
+              <span class="material-icons">code</span>
+              MUI対応
+            </span>
+          </div>
+          <span class="open-link">
+            <span class="material-icons" style="font-size: 18px;">open_in_new</span>
+            開く
+          </span>
+        </div>
+      </a>
+
+      <!-- P-001 Dashboard -->
+      <a href="p-001-dashboard.html" class="mockup-card">
+        <div class="mockup-preview">
+          <div class="mockup-preview-image">
+            <div class="preview-header"></div>
+            <div class="preview-body">
+              <div class="preview-sidebar"></div>
+              <div class="preview-content">
+                <div class="preview-card"></div>
+                <div class="preview-chart">
+                  <div class="preview-bar" style="height: 60%;"></div>
+                  <div class="preview-bar" style="height: 80%;"></div>
+                  <div class="preview-bar" style="height: 45%;"></div>
+                  <div class="preview-bar" style="height: 70%;"></div>
+                  <div class="preview-bar" style="height: 55%;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="mockup-content">
+          <span class="mockup-badge">P-001</span>
+          <h3 class="mockup-title">市場分析ダッシュボード</h3>
+          <p class="mockup-description">
+            シードルと他の酒類市場を6つの視点で比較分析するメインダッシュボード。
+            フィルター、サマリーカード、チャートを表示。
+          </p>
+          <div class="mockup-meta">
+            <span class="mockup-meta-item">
+              <span class="material-icons">route</span>
+              /
+            </span>
+            <span class="mockup-meta-item">
+              <span class="material-icons">bar_chart</span>
+              6視点
+            </span>
+          </div>
+          <span class="open-link">
+            <span class="material-icons" style="font-size: 18px;">open_in_new</span>
+            開く
+          </span>
+        </div>
+      </a>
+
+      <!-- P-002 Report -->
+      <a href="p-002-report.html" class="mockup-card">
+        <div class="mockup-preview">
+          <div class="mockup-preview-image">
+            <div class="preview-header"></div>
+            <div class="preview-body">
+              <div class="preview-sidebar"></div>
+              <div class="preview-content" style="display: grid; grid-template-columns: 1fr 2fr; gap: 8px;">
+                <div style="background: rgba(85, 139, 47, 0.1); border-radius: 4px; padding: 4px;">
+                  <div style="height: 8px; background: rgba(85, 139, 47, 0.2); border-radius: 2px; margin-bottom: 4px;"></div>
+                  <div style="height: 8px; background: rgba(85, 139, 47, 0.2); border-radius: 2px; margin-bottom: 4px;"></div>
+                  <div style="height: 8px; background: rgba(85, 139, 47, 0.2); border-radius: 2px;"></div>
+                </div>
+                <div style="background: rgba(85, 139, 47, 0.05); border-radius: 4px; display: flex; align-items: center; justify-content: center;">
+                  <span class="material-icons" style="font-size: 32px; color: rgba(85, 139, 47, 0.3);">picture_as_pdf</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="mockup-content">
+          <span class="mockup-badge">P-002</span>
+          <h3 class="mockup-title">レポート出力</h3>
+          <p class="mockup-description">
+            分析結果をPDF形式で出力するページ。
+            グラフ選択、タイトル・コメント設定、プレビュー機能を提供。
+          </p>
+          <div class="mockup-meta">
+            <span class="mockup-meta-item">
+              <span class="material-icons">route</span>
+              /report
+            </span>
+            <span class="mockup-meta-item">
+              <span class="material-icons">picture_as_pdf</span>
+              PDF出力
+            </span>
+          </div>
+          <span class="open-link">
+            <span class="material-icons" style="font-size: 18px;">open_in_new</span>
+            開く
+          </span>
+        </div>
+      </a>
+    </div>
+
+    <footer>
+      <p>シードル市場分析ダッシュボード - Phase 4完了時点のモックアップ</p>
+      <p style="margin-top: 8px; font-size: 0.75rem;">技術スタック: Next.js 15 + React 18 + MUI v6 + Recharts</p>
+    </footer>
+  </div>
+</body>
+</html>

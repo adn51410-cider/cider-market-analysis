@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>P-002: レポート出力 - モックアップ</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary-main: #558B2F;
+      --primary-light: #7CB342;
+      --primary-dark: #33691E;
+      --secondary-main: #FFC107;
+      --secondary-light: #FFD54F;
+      --secondary-dark: #FFA000;
+      --background-default: #F1F8E9;
+      --background-paper: #FFFFFF;
+      --text-primary: #1B5E20;
+      --text-secondary: #558B2F;
+      --error-main: #D32F2F;
+      --success-main: #388E3C;
+      --warning-main: #F57C00;
+      --info-main: #1976D2;
+    }
+
+    body {
+      font-family: 'Meiryo', 'Noto Sans JP', sans-serif;
+      background: var(--background-default);
+      min-height: 100vh;
+    }
+
+    /* AppBar */
+    .app-bar {
+      background: var(--primary-main);
+      color: white;
+      padding: 0 24px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      box-shadow: 0 1px 3px rgba(85, 139, 47, 0.12);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1100;
+    }
+
+    .app-bar-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .app-bar-spacer {
+      flex: 1;
+    }
+
+    /* Layout */
+    .layout {
+      display: flex;
+      padding-top: 64px;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 240px;
+      background: var(--background-paper);
+      min-height: calc(100vh - 64px);
+      border-right: 1px solid rgba(85, 139, 47, 0.12);
+      position: fixed;
+      left: 0;
+      top: 64px;
+      bottom: 0;
+      overflow-y: auto;
+    }
+
+    .sidebar-item {
+      display: flex;
+      align-items: center;
+      padding: 12px 24px;
+      color: var(--text-primary);
+      text-decoration: none;
+      gap: 16px;
+      transition: background 0.2s;
+    }
+
+    .sidebar-item:hover {
+      background: rgba(85, 139, 47, 0.08);
+    }
+
+    .sidebar-item.active {
+      background: rgba(85, 139, 47, 0.12);
+      color: var(--primary-main);
+      font-weight: 600;
+    }
+
+    .sidebar-divider {
+      height: 1px;
+      background: rgba(85, 139, 47, 0.12);
+      margin: 8px 0;
+    }
+
+    /* Main Content */
+    .main-content {
+      margin-left: 240px;
+      flex: 1;
+      padding: 24px;
+      min-height: calc(100vh - 64px);
+    }
+
+    /* Page Header */
+    .page-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .page-title {
+      color: var(--primary-main);
+      font-size: 2rem;
+      font-weight: 600;
+    }
+
+    /* Button */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: var(--primary-main);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+    }
+
+    .btn-outlined {
+      background: transparent;
+      color: var(--primary-main);
+      border: 1px solid var(--primary-main);
+    }
+
+    .btn-outlined:hover {
+      background: rgba(85, 139, 47, 0.08);
+    }
+
+    .btn-small {
+      padding: 6px 12px;
+      font-size: 0.8125rem;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 4px;
+      background: var(--background-paper);
+      padding: 8px;
+      border-radius: 12px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 8px rgba(85, 139, 47, 0.1);
+    }
+
+    .tab {
+      flex: 1;
+      padding: 12px 20px;
+      border: none;
+      background: transparent;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .tab:hover {
+      background: rgba(85, 139, 47, 0.08);
+    }
+
+    .tab.active {
+      background: var(--primary-main);
+      color: white;
+    }
+
+    /* Grid Layout */
+    .content-grid {
+      display: grid;
+      grid-template-columns: 350px 1fr;
+      gap: 24px;
+    }
+
+    /* Panel */
+    .panel {
+      background: var(--background-paper);
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 2px 8px rgba(85, 139, 47, 0.1);
+    }
+
+    .panel-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--primary-main);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Form Elements */
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid rgba(85, 139, 47, 0.3);
+      border-radius: 8px;
+      font-size: 1rem;
+      background: white;
+      color: var(--text-primary);
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--primary-main);
+      box-shadow: 0 0 0 2px rgba(85, 139, 47, 0.2);
+    }
+
+    .form-textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    /* Info Box */
+    .info-box {
+      background: var(--background-default);
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 20px;
+    }
+
+    .info-box-label {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+    }
+
+    .info-box-value {
+      font-size: 1rem;
+      color: var(--text-primary);
+    }
+
+    /* Divider */
+    .divider {
+      height: 1px;
+      background: rgba(85, 139, 47, 0.12);
+      margin: 20px 0;
+    }
+
+    /* Section Title */
+    .section-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Checkbox Group */
+    .checkbox-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .checkbox-item:hover {
+      background: rgba(85, 139, 47, 0.05);
+    }
+
+    .checkbox-item input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      accent-color: var(--primary-main);
+      cursor: pointer;
+    }
+
+    .checkbox-item label {
+      flex: 1;
+      cursor: pointer;
+      color: var(--text-primary);
+    }
+
+    /* Toggle */
+    .toggle-group {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px;
+      background: var(--background-default);
+      border-radius: 8px;
+      margin-bottom: 12px;
+    }
+
+    .toggle-label {
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .toggle-switch {
+      width: 48px;
+      height: 24px;
+      background: #ccc;
+      border-radius: 12px;
+      position: relative;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .toggle-switch.active {
+      background: var(--primary-main);
+    }
+
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: white;
+      border-radius: 50%;
+      top: 2px;
+      left: 2px;
+      transition: left 0.2s;
+    }
+
+    .toggle-switch.active::after {
+      left: 26px;
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .action-buttons .btn {
+      width: 100%;
+      justify-content: center;
+    }
+
+    /* Preview Panel */
+    .preview-content {
+      border: 1px solid rgba(85, 139, 47, 0.12);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .preview-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid rgba(85, 139, 47, 0.12);
+    }
+
+    .preview-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--primary-main);
+      margin-bottom: 8px;
+    }
+
+    .preview-meta {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+
+    .preview-body {
+      padding: 24px;
+      max-height: calc(100vh - 300px);
+      overflow-y: auto;
+    }
+
+    /* Strategy Section */
+    .strategy-section {
+      background: var(--background-default);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .strategy-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .strategy-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--primary-main);
+      color: white;
+    }
+
+    .strategy-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .strategy-subtitle {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+
+    .strategy-content {
+      margin-top: 16px;
+    }
+
+    .strategy-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px;
+      background: white;
+      border-radius: 8px;
+      margin-bottom: 8px;
+    }
+
+    .strategy-item-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .strategy-item-icon.up {
+      background: #e8f5e9;
+      color: var(--success-main);
+    }
+
+    .strategy-item-icon.down {
+      background: #ffebee;
+      color: var(--error-main);
+    }
+
+    .strategy-item-icon.info {
+      background: #e3f2fd;
+      color: var(--info-main);
+    }
+
+    .strategy-item-content h4 {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .strategy-item-content p {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    /* Tags */
+    .strategy-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .strategy-tag {
+      background: white;
+      padding: 6px 12px;
+      border-radius: 16px;
+      font-size: 0.8rem;
+      color: var(--text-primary);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    /* Action Plan */
+    .action-plan {
+      background: white;
+      border-radius: 8px;
+      padding: 16px;
+      margin-top: 16px;
+    }
+
+    .action-plan-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--primary-main);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .action-plan-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .action-plan-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(85, 139, 47, 0.1);
+      font-size: 0.9rem;
+      color: var(--text-primary);
+    }
+
+    .action-plan-list li:last-child {
+      border-bottom: none;
+    }
+
+    .action-plan-list li .material-icons {
+      color: var(--primary-main);
+      font-size: 18px;
+      margin-top: 2px;
+    }
+
+    /* Chart Preview Mini */
+    .chart-preview-mini {
+      background: white;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .chart-preview-mini-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 12px;
+    }
+
+    .chart-preview-mini-area {
+      height: 150px;
+      background: linear-gradient(180deg, rgba(85, 139, 47, 0.08) 0%, rgba(85, 139, 47, 0.02) 100%);
+      border-radius: 8px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-around;
+      padding: 12px;
+    }
+
+    .mini-bar {
+      width: 24px;
+      border-radius: 4px 4px 0 0;
+    }
+
+    .mini-bar-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .mini-bar-label {
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+    }
+
+    /* Footer Info */
+    .footer-info {
+      background: var(--background-paper);
+      border-radius: 8px;
+      padding: 16px;
+      margin-top: 24px;
+    }
+
+    .footer-info p {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+
+    .footer-info small {
+      font-size: 0.75rem;
+      color: rgba(85, 139, 47, 0.6);
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .sidebar {
+        display: none;
+      }
+      .main-content {
+        margin-left: 0;
+      }
+      .content-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Material Icons */
+    .material-icons {
+      font-size: 24px;
+    }
+
+    .material-icons.small {
+      font-size: 20px;
+    }
+  </style>
+</head>
+<body>
+  <!-- AppBar -->
+  <header class="app-bar">
+    <div class="app-bar-title">
+      <span class="material-icons">analytics</span>
+      シードル市場分析ダッシュボード
+    </div>
+    <div class="app-bar-spacer"></div>
+  </header>
+
+  <div class="layout">
+    <!-- Sidebar -->
+    <nav class="sidebar">
+      <a href="p-001-dashboard.html" class="sidebar-item">
+        <span class="material-icons">dashboard</span>
+        ダッシュボード
+      </a>
+      <a href="#" class="sidebar-item active">
+        <span class="material-icons">picture_as_pdf</span>
+        レポート出力
+      </a>
+      <div class="sidebar-divider"></div>
+      <a href="#" class="sidebar-item">
+        <span class="material-icons">help_outline</span>
+        ヘルプ
+      </a>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Page Header -->
+      <div class="page-header">
+        <a href="p-001-dashboard.html" class="btn btn-outlined btn-small">
+          <span class="material-icons small">arrow_back</span>
+          ダッシュボードに戻る
+        </a>
+        <h1 class="page-title">レポート出力</h1>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <button class="tab" onclick="showTab('charts')">
+          <span class="material-icons small">bar_chart</span>
+          グラフ選択
+        </button>
+        <button class="tab active" onclick="showTab('strategy')">
+          <span class="material-icons small">lightbulb</span>
+          販売戦略提案
+        </button>
+        <button class="tab" onclick="showTab('summary')">
+          <span class="material-icons small">summarize</span>
+          まとめ
+        </button>
+      </div>
+
+      <div class="content-grid">
+        <!-- Settings Panel -->
+        <div class="panel">
+          <h2 class="panel-title">
+            <span class="material-icons small">settings</span>
+            レポート設定
+          </h2>
+
+          <!-- Title -->
+          <div class="form-group">
+            <label class="form-label">レポートタイトル <span style="color: var(--error-main);">*</span></label>
+            <input type="text" class="form-input" value="シードル市場分析レポート 2024年度" placeholder="レポートタイトルを入力">
+          </div>
+
+          <!-- Date Range -->
+          <div class="info-box">
+            <div class="info-box-label">対象期間</div>
+            <div class="info-box-value">2024-01 〜 2024-12</div>
+          </div>
+
+          <div class="divider"></div>
+
+          <!-- Graph Selection -->
+          <div class="section-title">
+            <span class="material-icons small">bar_chart</span>
+            含めるグラフ
+          </div>
+          <div class="checkbox-group">
+            <div class="checkbox-item">
+              <input type="checkbox" id="chart1" checked>
+              <label for="chart1">市場規模推移</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" id="chart2" checked>
+              <label for="chart2">成長率トレンド</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" id="chart3" checked>
+              <label for="chart3">季節性パターン</label>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <!-- Strategy Options -->
+          <div class="section-title">
+            <span class="material-icons small">lightbulb</span>
+            戦略提案オプション
+          </div>
+
+          <div class="toggle-group">
+            <span class="toggle-label">販売戦略提案を含める</span>
+            <div class="toggle-switch active"></div>
+          </div>
+
+          <div class="toggle-group">
+            <span class="toggle-label">アクションプランを含める</span>
+            <div class="toggle-switch active"></div>
+          </div>
+
+          <div class="divider"></div>
+
+          <!-- Action Buttons -->
+          <div class="action-buttons">
+            <button class="btn btn-outlined">
+              <span class="material-icons small">auto_awesome</span>
+              戦略を自動生成
+            </button>
+            <button class="btn btn-primary">
+              <span class="material-icons small">picture_as_pdf</span>
+              PDF出力
+            </button>
+          </div>
+        </div>
+
+        <!-- Preview Panel -->
+        <div class="panel">
+          <div class="preview-content">
+            <div class="preview-header">
+              <h2 class="preview-title">シードル市場分析レポート 2024年度</h2>
+              <div class="preview-meta">
+                作成日: 2026/01/11 | 対象期間: 2024-01 〜 2024-12
+              </div>
+            </div>
+
+            <div class="preview-body">
+              <!-- Chart Preview -->
+              <div class="chart-preview-mini">
+                <div class="chart-preview-mini-title">市場規模推移（直近12ヶ月）</div>
+                <div class="chart-preview-mini-area">
+                  <div class="mini-bar-group">
+                    <div style="display: flex; gap: 2px; align-items: flex-end; height: 120px;">
+                      <div class="mini-bar" style="height: 70px; background: #1976d2;"></div>
+                      <div class="mini-bar" style="height: 55px; background: #dc004e;"></div>
+                      <div class="mini-bar" style="height: 20px; background: #558B2F;"></div>
+                    </div>
+                    <span class="mini-bar-label">7月</span>
+                  </div>
+                  <div class="mini-bar-group">
+                    <div style="display: flex; gap: 2px; align-items: flex-end; height: 120px;">
+                      <div class="mini-bar" style="height: 75px; background: #1976d2;"></div>
+                      <div class="mini-bar" style="height: 60px; background: #dc004e;"></div>
+                      <div class="mini-bar" style="height: 25px; background: #558B2F;"></div>
+                    </div>
+                    <span class="mini-bar-label">8月</span>
+                  </div>
+                  <div class="mini-bar-group">
+                    <div style="display: flex; gap: 2px; align-items: flex-end; height: 120px;">
+                      <div class="mini-bar" style="height: 80px; background: #1976d2;"></div>
+                      <div class="mini-bar" style="height: 65px; background: #dc004e;"></div>
+                      <div class="mini-bar" style="height: 30px; background: #558B2F;"></div>
+                    </div>
+                    <span class="mini-bar-label">9月</span>
+                  </div>
+                  <div class="mini-bar-group">
+                    <div style="display: flex; gap: 2px; align-items: flex-end; height: 120px;">
+                      <div class="mini-bar" style="height: 90px; background: #1976d2;"></div>
+                      <div class="mini-bar" style="height: 75px; background: #dc004e;"></div>
+                      <div class="mini-bar" style="height: 40px; background: #558B2F;"></div>
+                    </div>
+                    <span class="mini-bar-label">10月</span>
+                  </div>
+                  <div class="mini-bar-group">
+                    <div style="display: flex; gap: 2px; align-items: flex-end; height: 120px;">
+                      <div class="mini-bar" style="height: 100px; background: #1976d2;"></div>
+                      <div class="mini-bar" style="height: 85px; background: #dc004e;"></div>
+                      <div class="mini-bar" style="height: 50px; background: #558B2F;"></div>
+                    </div>
+                    <span class="mini-bar-label">11月</span>
+                  </div>
+                  <div class="mini-bar-group">
+                    <div style="display: flex; gap: 2px; align-items: flex-end; height: 120px;">
+                      <div class="mini-bar" style="height: 110px; background: #1976d2;"></div>
+                      <div class="mini-bar" style="height: 90px; background: #dc004e;"></div>
+                      <div class="mini-bar" style="height: 55px; background: #558B2F;"></div>
+                    </div>
+                    <span class="mini-bar-label">12月</span>
+                  </div>
+                </div>
+                <div style="display: flex; justify-content: center; gap: 20px; margin-top: 12px; font-size: 0.75rem;">
+                  <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 12px; height: 12px; background: #1976d2; border-radius: 2px;"></span> ワイン</span>
+                  <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 12px; height: 12px; background: #dc004e; border-radius: 2px;"></span> 日本酒</span>
+                  <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 12px; height: 12px; background: #558B2F; border-radius: 2px;"></span> シードル</span>
+                </div>
+              </div>
+
+              <!-- Analysis Summary -->
+              <div class="strategy-section">
+                <div class="strategy-header">
+                  <div class="strategy-icon">
+                    <span class="material-icons">analytics</span>
+                  </div>
+                  <div>
+                    <div class="strategy-title">分析サマリー</div>
+                    <div class="strategy-subtitle">市場データから読み取れる主要な傾向</div>
+                  </div>
+                </div>
+
+                <div class="strategy-content">
+                  <div class="strategy-item">
+                    <div class="strategy-item-icon up">
+                      <span class="material-icons small">trending_up</span>
+                    </div>
+                    <div class="strategy-item-content">
+                      <h4>シードル市場は前年比+12%の成長</h4>
+                      <p>ワイン（+3%）・日本酒（+1%）と比較して高い成長率を維持。果実酒カテゴリー全体を牽引。</p>
+                    </div>
+                  </div>
+
+                  <div class="strategy-item">
+                    <div class="strategy-item-icon info">
+                      <span class="material-icons small">calendar_month</span>
+                    </div>
+                    <div class="strategy-item-content">
+                      <h4>秋冬（10-12月）に売上ピーク</h4>
+                      <p>ホットシードル需要の高まりにより、10-12月は年間売上の35%を占める。夏場は相対的に低迷。</p>
+                    </div>
+                  </div>
+
+                  <div class="strategy-item">
+                    <div class="strategy-item-icon down">
+                      <span class="material-icons small">warning</span>
+                    </div>
+                    <div class="strategy-item-content">
+                      <h4>認知度はワインの1/5程度</h4>
+                      <p>消費者調査では「シードルを知らない」が42%。認知拡大が最大の課題。</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Opportunities -->
+              <div class="strategy-section">
+                <div class="strategy-header">
+                  <div class="strategy-icon" style="background: var(--success-main);">
+                    <span class="material-icons">emoji_objects</span>
+                  </div>
+                  <div>
+                    <div class="strategy-title">成長機会</div>
+                    <div class="strategy-subtitle">データに基づく市場参入ポイント</div>
+                  </div>
+                </div>
+
+                <div class="strategy-content">
+                  <div class="strategy-item">
+                    <div class="strategy-item-icon up">
+                      <span class="material-icons small">trending_up</span>
+                    </div>
+                    <div class="strategy-item-content">
+                      <h4>低アルコール市場の拡大</h4>
+                      <p>RTD市場（+8%成長）との親和性が高い。アルコール度数3-5%帯の需要増加。</p>
+                    </div>
+                  </div>
+
+                  <div class="strategy-item">
+                    <div class="strategy-item-icon up">
+                      <span class="material-icons small">restaurant</span>
+                    </div>
+                    <div class="strategy-item-content">
+                      <h4>食事ペアリング需要</h4>
+                      <p>和食との相性の良さが注目。日本酒代替としての提案機会。</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="strategy-tags">
+                  <span class="strategy-tag">🎯 20-30代女性</span>
+                  <span class="strategy-tag">🥗 健康志向層</span>
+                  <span class="strategy-tag">🍽️ 外食シーン</span>
+                  <span class="strategy-tag">🎁 ギフト需要</span>
+                </div>
+              </div>
+
+              <!-- Recommended Strategy -->
+              <div class="strategy-section">
+                <div class="strategy-header">
+                  <div class="strategy-icon" style="background: var(--info-main);">
+                    <span class="material-icons">lightbulb</span>
+                  </div>
+                  <div>
+                    <div class="strategy-title">推奨戦略</div>
+                    <div class="strategy-subtitle">分析結果に基づく販売戦略</div>
+                  </div>
+                </div>
+
+                <div class="strategy-tags">
+                  <span class="strategy-tag">📱 SNS・デジタル広告強化</span>
+                  <span class="strategy-tag">💰 1,000-1,500円帯を重点展開</span>
+                  <span class="strategy-tag">🏪 コンビニ・スーパー配荷拡大</span>
+                  <span class="strategy-tag">🍂 秋冬キャンペーン強化</span>
+                  <span class="strategy-tag">🍎 「りんごのお酒」認知訴求</span>
+                </div>
+
+                <div class="action-plan">
+                  <div class="action-plan-title">
+                    <span class="material-icons small">checklist</span>
+                    アクションプラン
+                  </div>
+                  <ul class="action-plan-list">
+                    <li>
+                      <span class="material-icons">check_circle</span>
+                      9月から秋冬キャンペーン開始（ホットシードル訴求）
+                    </li>
+                    <li>
+                      <span class="material-icons">check_circle</span>
+                      Instagram・TikTokでの認知拡大広告（月間リーチ100万目標）
+                    </li>
+                    <li>
+                      <span class="material-icons">check_circle</span>
+                      大手コンビニ3社への棚確保交渉（ワイン売り場隣接）
+                    </li>
+                    <li>
+                      <span class="material-icons">check_circle</span>
+                      飲食店向け「和食ペアリングメニュー」提案資料作成
+                    </li>
+                    <li>
+                      <span class="material-icons">check_circle</span>
+                      冬季限定フレーバー（シナモン・ジンジャー）の開発検討
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer Info -->
+      <div class="footer-info">
+        <p>PDF生成仕様: A4サイズ、フォント: メイリオ</p>
+        <small>※ 戦略提案は市場データ分析に基づいて自動生成されます。必要に応じて編集してご利用ください。</small>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    function showTab(tabName) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      event.target.closest('.tab').classList.add('active');
+    }
+
+    document.querySelectorAll('.toggle-switch').forEach(toggle => {
+      toggle.addEventListener('click', function() {
+        this.classList.toggle('active');
+      });
+    });
+  </script>
+</body>
+</html>

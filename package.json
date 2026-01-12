@@ -8,7 +8,14 @@
     "build": "next build",
     "start": "next start -p 3247",
     "lint": "next lint",
-    "test": "echo 'No tests configured yet' && exit 0"
+    "test": "tsx tests/integration/database.test.ts && tsx tests/integration/estatApi.test.ts && tsx tests/integration/csvImport.test.ts",
+    "test:db": "tsx tests/integration/database.test.ts",
+    "test:estat": "tsx tests/integration/estatApi.test.ts",
+    "test:csv": "tsx tests/integration/csvImport.test.ts",
+    "test:market-data": "tsx tests/integration/marketDataApi.test.ts",
+    "test:e2e": "npx playwright test",
+    "test:e2e:ui": "npx playwright test --ui",
+    "db:migrate": "tsx src/lib/migrations/runMigrations.ts"
   },
   "keywords": [],
   "author": "",
@@ -19,11 +26,14 @@
     "@mui/icons-material": "^7.3.7",
     "@mui/material": "^6.5.0",
     "@mui/material-nextjs": "^7.3.7",
+    "@react-pdf/renderer": "^4.3.2",
     "@tanstack/react-query": "^5.90.16",
     "@types/node": "^25.0.3",
     "@types/pg": "^8.16.0",
     "@types/react": "^19.2.7",
+    "html2canvas": "^1.4.1",
     "next": "^15.5.9",
+    "papaparse": "^5.5.3",
     "pg": "^8.16.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
@@ -33,9 +43,11 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",
-    "@react-pdf/renderer": "^4.3.2",
+    "@playwright/test": "^1.57.0",
+    "@types/papaparse": "^5.5.2",
+    "dotenv": "^17.2.3",
     "eslint": "^9.39.2",
-    "html2canvas": "^1.4.1",
+    "tsx": "^4.21.0",
     "typescript-eslint": "^8.52.0"
   }
 }

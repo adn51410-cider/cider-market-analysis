@@ -1,4 +1,47 @@
 /** @type {import('next').NextConfig} */
+
+// Content-Security-Policy設定
+// Rechartsはinline script/styleを使用するため、unsafe-inline/unsafe-evalが必要
+// MUIもCSS-in-JSのためunsafe-inlineが必要
+const ContentSecurityPolicy = `
+  default-src 'self';
+  script-src 'self' 'unsafe-inline' 'unsafe-eval';
+  style-src 'self' 'unsafe-inline';
+  img-src 'self' data: blob:;
+  font-src 'self';
+  connect-src 'self' https://api.e-stat.go.jp;
+  frame-ancestors 'none';
+  base-uri 'self';
+  form-action 'self';
+`.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
+
+const securityHeaders = [
+  {
+    key: 'X-Content-Type-Options',
+    value: 'nosniff',
+  },
+  {
+    key: 'X-Frame-Options',
+    value: 'DENY',
+  },
+  {
+    key: 'X-XSS-Protection',
+    value: '1; mode=block',
+  },
+  {
+    key: 'Referrer-Policy',
+    value: 'strict-origin-when-cross-origin',
+  },
+  {
+    key: 'Content-Security-Policy',
+    value: ContentSecurityPolicy,
+  },
+  {
+    key: 'Permissions-Policy',
+    value: 'camera=(), microphone=(), geolocation=()',
+  },
+];
+
 const nextConfig = {
   reactStrictMode: true,
   compiler: {
@@ -7,21 +50,8 @@ const nextConfig = {
   async headers() {
     return [
       {
-        source: '/:path*',
-        headers: [
-          {
-            key: 'X-Frame-Options',
-            value: 'DENY',
-          },
-          {
-            key: 'X-Content-Type-Options',
-            value: 'nosniff',
-          },
-          {
-            key: 'Referrer-Policy',
-            value: 'strict-origin-when-cross-origin',
-          },
-        ],
+        source: '/(.*)',
+        headers: securityHeaders,
       },
     ];
   },

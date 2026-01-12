@@ -12,9 +12,11 @@ import {
   TextField,
   Button,
   Paper,
+  CircularProgress,
 } from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import DescriptionIcon from '@mui/icons-material/Description';
+import UploadFileIcon from '@mui/icons-material/UploadFile';
 import { useRouter } from 'next/navigation';
 import { AlcoholCategory, AnalysisView } from '@/types';
 import { useDashboardStore } from '@/stores/dashboardStore';
@@ -22,7 +24,18 @@ import { useDashboardStore } from '@/stores/dashboardStore';
 const ANALYSIS_VIEWS = Object.values(AnalysisView);
 const CATEGORIES = Object.values(AlcoholCategory);
 
-export default function FilterPanel() {
+interface FilterPanelProps {
+  /** データ更新コールバック */
+  onRefresh?: () => void;
+  /** 更新中フラグ */
+  isRefreshing?: boolean;
+}
+
+// eslint-disable-next-line max-lines-per-function
+export default function FilterPanel({
+  onRefresh,
+  isRefreshing = false,
+}: FilterPanelProps) {
   const router = useRouter();
   const {
     selectedView,
@@ -37,10 +50,14 @@ export default function FilterPanel() {
     setSelectedView(event.target.value as AnalysisView);
   };
 
-  const handleCategoryChange = (event: SelectChangeEvent<typeof selectedCategories>) => {
+  const handleCategoryChange = (
+    event: SelectChangeEvent<typeof selectedCategories>
+  ) => {
     const value = event.target.value;
     setSelectedCategories(
-      typeof value === 'string' ? value.split(',') as AlcoholCategory[] : value
+      typeof value === 'string'
+        ? (value.split(',') as AlcoholCategory[])
+        : value
     );
   };
 
@@ -53,21 +70,32 @@ export default function FilterPanel() {
   };
 
   const handleRefresh = () => {
-    // データ更新処理（将来的にはAPIから再取得）
-    window.location.reload();
+    if (onRefresh) {
+      onRefresh();
+    }
   };
 
   const handleReportClick = () => {
     router.push('/report');
   };
 
+  const handleImportClick = () => {
+    router.push('/report?tab=import');
+  };
+
   return (
     <Paper sx={{ p: 2, mb: 3 }}>
-      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, alignItems: 'center' }}>
+      <Box
+        sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, alignItems: 'center' }}
+      >
         {/* 分析視点 */}
         <FormControl sx={{ minWidth: 180 }} size="small">
           <InputLabel>分析視点</InputLabel>
-          <Select value={selectedView} label="分析視点" onChange={handleViewChange}>
+          <Select
+            value={selectedView}
+            label="分析視点"
+            onChange={handleViewChange}
+          >
             {ANALYSIS_VIEWS.map((view) => (
               <MenuItem key={view} value={view}>
                 {view}
@@ -124,11 +152,27 @@ export default function FilterPanel() {
         <Box sx={{ display: 'flex', gap: 1, ml: 'auto' }}>
           <Button
             variant="outlined"
-            startIcon={<RefreshIcon />}
+            startIcon={
+              isRefreshing ? (
+                <CircularProgress size={16} color="inherit" />
+              ) : (
+                <RefreshIcon />
+              )
+            }
             onClick={handleRefresh}
             size="small"
+            disabled={isRefreshing}
           >
-            更新
+            {isRefreshing ? '更新中...' : '更新'}
+          </Button>
+          <Button
+            variant="outlined"
+            startIcon={<UploadFileIcon />}
+            onClick={handleImportClick}
+            size="small"
+            color="secondary"
+          >
+            CSVインポート
           </Button>
           <Button
             variant="contained"
