@@ -29,6 +29,10 @@ export function getPool(): Pool {
       // eslint-disable-next-line no-console
       console.error('Unexpected error on idle database client', err);
     });
+
+    // instrumentation.tsからアクセスできるようにグローバルに保存
+    // これによりpgモジュールのバンドル問題を回避
+    (globalThis as { __dbPool?: Pool }).__dbPool = pool;
   }
   return pool;
 }
@@ -147,6 +151,8 @@ export async function closePool(): Promise<void> {
   if (pool) {
     await pool.end();
     pool = null;
+    // グローバル参照もクリア
+    (globalThis as { __dbPool?: Pool | null }).__dbPool = null;
   }
 }
 

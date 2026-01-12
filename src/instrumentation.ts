@@ -25,11 +25,15 @@ async function gracefulShutdown(signal: string): Promise<void> {
   // タイムアウト付きでシャットダウン処理を実行
   const shutdownPromise = (async () => {
     try {
-      // 動的インポートでpgモジュールのバンドル問題を回避
-      const { closePool } = await import('@/lib/db');
-      // データベース接続プールを終了
-      await closePool();
-      console.log('[Shutdown] Database pool closed successfully');
+      // グローバルに保存されたプール参照を使用してクローズ
+      // db.tsがロードされていれば、グローバルにプールが保存されている
+      const globalPool = (globalThis as { __dbPool?: { end: () => Promise<void> } }).__dbPool;
+      if (globalPool && typeof globalPool.end === 'function') {
+        await globalPool.end();
+        console.log('[Shutdown] Database pool closed successfully');
+      } else {
+        console.log('[Shutdown] No database pool to close');
+      }
     } catch (error) {
       console.error('[Shutdown] Error closing database pool:', error);
     }
