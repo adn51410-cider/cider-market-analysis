@@ -1,5 +1,3 @@
-import { closePool } from '@/lib/db';
-
 /**
  * グレースフルシャットダウンのタイムアウト（ミリ秒）
  * Cloud Runの10秒制限に対応するため8秒に設定
@@ -27,6 +25,8 @@ async function gracefulShutdown(signal: string): Promise<void> {
   // タイムアウト付きでシャットダウン処理を実行
   const shutdownPromise = (async () => {
     try {
+      // 動的インポートでpgモジュールのバンドル問題を回避
+      const { closePool } = await import('@/lib/db');
       // データベース接続プールを終了
       await closePool();
       console.log('[Shutdown] Database pool closed successfully');
