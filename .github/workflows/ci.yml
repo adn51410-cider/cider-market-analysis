@@ -2,33 +2,29 @@ name: CI
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main]
   pull_request:
-    branches: [ main, develop ]
+    branches: [main]
+
+env:
+  NODE_VERSION: '20'
 
 jobs:
-  quality-check:
+  build:
+    name: Build & Lint
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [18.x, 20.x]
-
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node.js ${{ matrix.node-version }}
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'npm'
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
 
       - name: Install dependencies
         run: npm ci
-
-      - name: Build
-        run: npm run build
 
       - name: Type check
         run: npx tsc --noEmit
@@ -36,11 +32,82 @@ jobs:
       - name: Lint
         run: npm run lint
 
-      - name: Test
-        run: npm test -- --passWithNoTests --coverage
+      - name: Build
+        run: npm run build
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          ESTAT_API_KEY: ${{ secrets.ESTAT_API_KEY }}
 
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
-        if: matrix.node-version == '20.x'
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          fail_ci_if_error: false
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run database tests
+        run: npx tsx tests/integration/database.test.ts
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: Run e-Stat API tests
+        run: npx tsx tests/integration/estatApi.test.ts
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          ESTAT_API_KEY: ${{ secrets.ESTAT_API_KEY }}
+
+      - name: Run CSV import tests
+        run: npx tsx tests/integration/csvImport.test.ts
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+  e2e-tests:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Build application
+        run: npm run build
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          ESTAT_API_KEY: ${{ secrets.ESTAT_API_KEY }}
+
+      - name: Run E2E tests
+        run: npx playwright test --project=chromium
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          ESTAT_API_KEY: ${{ secrets.ESTAT_API_KEY }}
+          NEXT_PUBLIC_APP_URL: http://localhost:3247
+
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
