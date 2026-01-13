@@ -25,7 +25,7 @@ export default function Header({ onMenuClick, showMenuButton = true }: HeaderPro
             aria-label="メニューを開く"
             edge="start"
             onClick={onMenuClick}
-            sx={{ mr: 2, display: { md: 'none' } }}
+            sx={{ mr: 2 }}
           >
             <MenuIcon />
           </IconButton>

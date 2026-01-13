@@ -41,7 +41,7 @@ const menuItems: MenuItem[] = [
 interface SidebarProps {
   open: boolean;
   onClose: () => void;
-  variant?: 'permanent' | 'temporary';
+  variant?: 'permanent' | 'temporary' | 'persistent';
 }
 
 export default function Sidebar({ open, onClose, variant = 'permanent' }: SidebarProps) {
@@ -97,6 +97,7 @@ export default function Sidebar({ open, onClose, variant = 'permanent' }: Sideba
     </Box>
   );
 
+  // モバイル用（オーバーレイ）
   if (variant === 'temporary') {
     return (
       <Drawer
@@ -105,7 +106,6 @@ export default function Sidebar({ open, onClose, variant = 'permanent' }: Sideba
         onClose={onClose}
         ModalProps={{ keepMounted: true }}
         sx={{
-          display: { xs: 'block', md: 'none' },
           '& .MuiDrawer-paper': {
             boxSizing: 'border-box',
             width: DRAWER_WIDTH,
@@ -117,17 +117,19 @@ export default function Sidebar({ open, onClose, variant = 'permanent' }: Sideba
     );
   }
 
+  // デスクトップ用（プッシュ式）
   return (
     <Drawer
-      variant="permanent"
+      variant="persistent"
+      open={open}
       sx={{
-        display: { xs: 'none', md: 'block' },
+        width: open ? DRAWER_WIDTH : 0,
+        flexShrink: 0,
         '& .MuiDrawer-paper': {
           boxSizing: 'border-box',
           width: DRAWER_WIDTH,
         },
       }}
-      open
     >
       {drawerContent}
     </Drawer>
