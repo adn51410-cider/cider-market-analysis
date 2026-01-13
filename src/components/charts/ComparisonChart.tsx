@@ -24,6 +24,52 @@ const CATEGORY_COLORS: Record<string, string> = {
   [AlcoholCategory.OTHER]: '#E0E0E0',     // 薄いグレー
 };
 
+// 数値フォーマット（カンマ区切り）
+const formatNumber = (value: number): string => {
+  return value.toLocaleString('ja-JP');
+};
+
+// カスタムツールチップ
+interface TooltipPayload {
+  name: string;
+  value: number;
+  color: string;
+}
+
+interface CustomTooltipProps {
+  active?: boolean;
+  payload?: TooltipPayload[];
+  label?: string;
+}
+
+function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
+  if (!active || !payload || payload.length === 0) return null;
+
+  return (
+    <Box
+      sx={{
+        bgcolor: 'white',
+        border: '1px solid #558B2F',
+        borderRadius: 1,
+        p: 1.5,
+        boxShadow: 2,
+      }}
+    >
+      <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 'bold' }}>
+        {label}
+      </Typography>
+      {payload.map((entry, index) => (
+        <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+          <Box sx={{ width: 12, height: 12, borderRadius: '50%', bgcolor: entry.color }} />
+          <Typography variant="body2">
+            {entry.name}: <strong>{formatNumber(entry.value)}</strong> 円
+          </Typography>
+        </Box>
+      ))}
+    </Box>
+  );
+}
+
 interface ChartDataPoint {
   yearMonth: string;
   [key: string]: string | number;
@@ -59,6 +105,7 @@ export default function ComparisonChart({
             <YAxis
               tick={{ fontSize: 12 }}
               stroke="#558B2F"
+              tickFormatter={formatNumber}
               label={{
                 value: yAxisLabel,
                 angle: -90,
@@ -66,14 +113,12 @@ export default function ComparisonChart({
                 style: { fontSize: 12, fill: '#558B2F' },
               }}
             />
-            <Tooltip
-              contentStyle={{
-                backgroundColor: '#FFFFFF',
-                border: '1px solid #558B2F',
-                borderRadius: 8,
-              }}
+            <Tooltip content={<CustomTooltip />} />
+            <Legend
+              wrapperStyle={{ paddingTop: 16 }}
+              iconType="circle"
+              iconSize={10}
             />
-            <Legend />
             {categories.map((category) => (
               <Line
                 key={category}

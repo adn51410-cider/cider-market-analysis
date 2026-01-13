@@ -13,6 +13,7 @@ import {
   Button,
   Paper,
   CircularProgress,
+  Typography,
 } from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import DescriptionIcon from '@mui/icons-material/Description';
@@ -128,29 +129,30 @@ export default function FilterPanel({
           </Select>
         </FormControl>
 
-        {/* 期間選択（e-Stat家計調査データ: 1985年〜2025年11月） */}
-        <TextField
-          label="開始年月"
-          type="month"
-          value={dateRange.from}
-          onChange={handleFromChange}
-          size="small"
-          sx={{ width: 160 }}
-          InputLabelProps={{ shrink: true }}
-          inputProps={{ min: '1985-01', max: '2025-11' }}
-          helperText="1985-01〜2025-11"
-        />
-        <TextField
-          label="終了年月"
-          type="month"
-          value={dateRange.to}
-          onChange={handleToChange}
-          size="small"
-          sx={{ width: 160 }}
-          InputLabelProps={{ shrink: true }}
-          inputProps={{ min: '1985-01', max: '2025-11' }}
-          helperText="1985-01〜2025-11"
-        />
+        {/* 期間選択 */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <TextField
+            label="開始"
+            type="month"
+            value={dateRange.from}
+            onChange={handleFromChange}
+            size="small"
+            sx={{ width: 145 }}
+            InputLabelProps={{ shrink: true }}
+            inputProps={{ min: '1985-01', max: '2025-11' }}
+          />
+          <Typography variant="body2" color="text.secondary">〜</Typography>
+          <TextField
+            label="終了"
+            type="month"
+            value={dateRange.to}
+            onChange={handleToChange}
+            size="small"
+            sx={{ width: 145 }}
+            InputLabelProps={{ shrink: true }}
+            inputProps={{ min: '1985-01', max: '2025-11' }}
+          />
+        </Box>
 
         {/* アクションボタン */}
         <Box sx={{ display: 'flex', gap: 1, ml: 'auto' }}>
