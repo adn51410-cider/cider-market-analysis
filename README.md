@@ -2,6 +2,10 @@
 
 シードル市場とアルコール市場全体（特にワイン・日本酒）を多角的に比較分析し、データに基づいた販売戦略を立案するためのダッシュボードアプリケーション。
 
+## 🌐 本番環境
+
+**URL**: https://cider-market-analysis.vercel.app
+
 ## 🎯 プロジェクト概要
 
 ### 成果目標
@@ -9,32 +13,51 @@
 
 ### 主要機能
 - **市場分析ダッシュボード**: 6つの視点で酒類市場を比較分析
-- **レポート出力**: PDFレポート自動生成（メイリオフォント、1ページ1グラフ）
+- **レポート出力**: PDFレポート自動生成（Noto Sans JPフォント、1ページ1グラフ）
 - **データ自動取得**: e-Stat API経由で政府統計データを自動取得
+- **CSVインポート**: 補完データの手動インポート対応
+
+## 📖 使い方
+
+### ダッシュボード（トップページ）
+1. 画面上部のフィルターで「分析視点」「酒類カテゴリー」「期間」を選択
+2. グラフが自動更新され、選択した条件でデータを表示
+3. 「更新」ボタンで最新データを取得
+
+### レポート出力
+1. ナビゲーションから「レポート出力」をクリック
+2. レポートタイトルを入力（必須）
+3. 含めるグラフを選択（最大10件）
+4. 「プレビュー表示」で確認
+5. 「PDF出力」でダウンロード
+
+### CSVインポート
+1. レポートページの「CSVインポート」タブを選択
+2. 指定フォーマットのCSVファイルをアップロード
+3. データがデータベースに追加される
 
 ## 🛠 技術スタック
 
 ### フロントエンド
 - React 18 + TypeScript 5
-- Next.js 15
+- Next.js 15 (App Router)
 - MUI v6
 - Recharts
 - Zustand + TanStack Query
 
 ### バックエンド
-- Next.js 15 (APIルート)
+- Next.js 15 (API Routes)
 - PostgreSQL (Neon)
 
 ### インフラ
-- 開発: Vercel
-- 本番: Google Cloud Run
+- ホスティング: Vercel
+- データベース: Neon PostgreSQL
 
-## 📋 セットアップ
+## 📋 ローカル開発
 
 ### 必要な外部サービス
 1. [e-Stat API](https://www.e-stat.go.jp/api/) - 政府統計データ取得
 2. [Neon](https://neon.tech) - PostgreSQLデータベース
-3. [Vercel](https://vercel.com) - ホスティング（開発環境）
 
 ### 環境変数設定
 `.env.local`ファイルを作成し、以下を設定：
@@ -44,27 +67,32 @@ ESTAT_API_KEY=...              # e-Stat APIキー
 NEXT_PUBLIC_APP_URL=http://localhost:3247
 ```
 
+### 起動コマンド
+```bash
+npm install
+npm run dev
+```
+
+開発サーバー: http://localhost:3247
+
 ## 📖 ドキュメント
 
 - [要件定義書](docs/requirements.md)
-- [進捗管理](docs/SCOPE_PROGRESS.md)
+- [E2Eテスト進捗](docs/SCOPE_PROGRESS.md)
 - [プロジェクト設定](CLAUDE.md)
 
 ## 🚀 開発フロー
 
 ```
-Phase 1: 要件定義 ✅
-Phase 2: Git/GitHub管理 🔄
-Phase 3: フロントエンド基盤
-Phase 4: ページ実装
-Phase 5: バックエンド基盤
-Phase 6: API実装
-Phase 7: データベース設計
-Phase 8: 統合テスト
-Phase 9: デプロイ準備
-Phase 10: 本番デプロイ
+Phase 1-9: 実装完了 ✅
+Phase 10: 本番デプロイ ✅
 Phase 11: 機能拡張（MVP検証後）
 ```
+
+### 完了済み
+- E2Eテスト: 19項目全てPass
+- 本番デプロイ: Vercel稼働中
+- TypeScriptエラー: 0件
 
 ## 📄 ライセンス
 

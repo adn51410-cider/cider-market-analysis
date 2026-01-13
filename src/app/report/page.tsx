@@ -25,17 +25,33 @@ import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import PreviewIcon from '@mui/icons-material/Preview';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import { useRouter } from 'next/navigation';
+import dynamic from 'next/dynamic';
 import { useReportStore } from '@/stores/reportStore';
 import { AnalysisView } from '@/types';
-import ComparisonChart from '@/components/charts/ComparisonChart';
-import CsvImportPanel from '@/components/dashboard/CsvImportPanel';
-import { captureElement } from '@/utils/chartCapture';
-import {
-  generateReportPdfFromImages,
-  generateDefaultFilename,
-} from '@/utils/pdfExport';
-import { ChartImage } from '@/components/pdf/ReportDocument';
 import { useMarketData } from '@/hooks/queries';
+
+// 動的インポート: 重いコンポーネントを遅延ロード
+const ComparisonChart = dynamic(
+  () => import('@/components/charts/ComparisonChart'),
+  {
+    loading: () => <Skeleton variant="rectangular" height={350} />,
+    ssr: false,
+  }
+);
+
+const CsvImportPanel = dynamic(
+  () => import('@/components/dashboard/CsvImportPanel'),
+  {
+    loading: () => <Skeleton variant="rectangular" height={300} />,
+    ssr: false,
+  }
+);
+
+// ChartImage型定義（PDF関連は動的インポートのため）
+interface ChartImage {
+  title: string;
+  dataUrl: string;
+}
 
 // 分析視点の一覧
 const ANALYSIS_VIEWS = Object.values(AnalysisView);
@@ -70,7 +86,7 @@ function TabPanel(props: TabPanelProps) {
   );
 }
 
-// チャートをキャプチャしてPDFを生成
+// チャートをキャプチャしてPDFを生成（動的インポート使用）
 async function captureChartsAndGeneratePdf(
   selectedCharts: AnalysisView[],
   chartRefs: Map<string, HTMLDivElement>,
@@ -82,6 +98,14 @@ async function captureChartsAndGeneratePdf(
   },
   onProgress: (message: string) => void
 ): Promise<number> {
+  // PDF関連ライブラリを動的にインポート（初回クリック時のみロード）
+  onProgress('PDFライブラリを読み込み中...');
+  const [{ captureElement }, { generateReportPdfFromImages, generateDefaultFilename }] =
+    await Promise.all([
+      import('@/utils/chartCapture'),
+      import('@/utils/pdfExport'),
+    ]);
+
   const charts: ChartImage[] = [];
   const totalCharts = selectedCharts.length;
 

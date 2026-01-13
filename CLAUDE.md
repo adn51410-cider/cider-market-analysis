@@ -8,8 +8,8 @@
   frontend: React 18 + TypeScript 5 + MUI v6 + Recharts
   backend: Next.js 15 (APIルート)
   database: PostgreSQL (Neon)
-  hosting_dev: Vercel
-  hosting_prod: Google Cloud Run
+  hosting: Vercel（本番環境）
+  hosting_future: Google Cloud Run（将来移行オプション）
 ```
 
 ## 開発環境
@@ -373,26 +373,41 @@ inject_knowledge ツールで keyword: "@E2Eテストオーケストレーター
 
 ## デプロイ設定
 
-### Vercel（検証環境）
+### Vercel（本番環境）
 ```yaml
 デプロイ日: 2026-01-13
+本番運用開始: 2026-01-13
 URL: https://cider-market-analysis.vercel.app
-ステータス: ✅ 稼働中
+ステータス: ✅ 本番稼働中
 
 環境変数:
   - DATABASE_URL: Neon PostgreSQL接続URL
   - ESTAT_API_KEY: e-Stat APIアプリケーションID
   - NEXT_PUBLIC_APP_URL: https://cider-market-analysis.vercel.app
 
-データベース構成: A（お試しデプロイ - 開発DBをそのまま使用）
+データベース構成: A（開発DBを本番として使用）
 
 動作確認:
   - ヘルスチェックAPI: ✅ 正常
   - 市場データAPI: ✅ 正常
   - データベース接続: ✅ 正常
+  - ダッシュボードページ: ✅ 正常
+  - レポートページ: ✅ 正常
 ```
 
-### Cloud Run（本番環境）
+### Cloud Run（将来移行オプション）
 ```yaml
-ステータス: 🔜 未デプロイ（待機中）
+ステータス: 📋 待機中（必要時に移行可能）
+
+移行条件:
+  - 月間10万リクエスト超過時
+  - GCPサービス連携が必要な場合
+  - 企業要件でGCP指定がある場合
+
+移行手順:
+  1. gcloud CLIインストール・認証
+  2. Dockerfile作成
+  3. gcloud run deploy実行
+  4. 環境変数設定
+  5. DNS切り替え（カスタムドメイン使用時）
 ```
